@@ -1,0 +1,332 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Make a map with Tangram and the XYZ API</title>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Make a map with Tangram and the XYZ API"
+                  environment="web"
+                  feedback-link="https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>This tutorial shows you how to create a Tangram map using data from XYZ Spaces.</p>
+<h2 class="checklist">What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>The basics of managing multiple XYZ spaces</li>
+<li>The fundamentals of using tiled data</li>
+<li>How to view your data in Tangram, using the tiled data endpoint</li>
+<li>How to query data from XYZ using bounding box queries.</li>
+</ul>
+<h2>Prerequisites</h2>
+<ul>
+<li>Basic familiarity with the command line</li>
+<li>Basic familiarity with JavaScript</li>
+</ul>
+<p>In this demo we&#39;ll download several public datasets for the city of Amsterdam and combine them in various ways in an interactive map.</p>
+<p><img alt="Finished Amsterdam solar panels and tree map" src="img/fa42ea027b2d5928.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Get the data" duration="0">
+        <p>In this demo, we&#39;ll use open data provided by the City of Amsterdam. We&#39;ll look at two sources of data: solar panel installations, and street trees.</p>
+<p>The solar data is available <a href="https://maps.amsterdam.nl/open_geodata/geojson.php?KAARTLAAG=ZONNEPANELEN2017&THEMA=zonnepanelen" target="_blank">to download</a>, but the default visualization of the data is not particularly informative.</p>
+<p><img alt="Solar data" src="img/32522d6cad32930c.png"></p>
+<p>Let&#39;s also download <a href="https://maps.amsterdam.nl/open_geodata/geojson.php?KAARTLAAG=BOMEN&THEMA=bomen1" target="_blank">some tree data</a> and upload both to an XYZ space.</p>
+<pre><code>here xyz upload -f ZONNEPANELEN2017.json [SpaceID]
+here xyz upload -f BOMEN.json [SpaceID]
+</code></pre>
+<p>To make the solar panel data more interpretable, let&#39;s try aggregating solar installations at the neighborhood level. To do so, we&#39;ll also need a <a href="https://maps.amsterdam.nl/open_geodata/geojson.php?KAARTLAAG=GEBIED_BUURTCOMBINATIES_EXWATER&THEMA=gebiedsindeling" target="_blank">dataset of Amsterdam neighborhood boundaries</a>.</p>
+<p><img alt="Neighborhood boundaries" src="img/4614cdd4512e2679.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Preprocessing" duration="0">
+        <p>We&#39;ll write a node script to find the total solar power generated in each neighborhood and save it to a new GeoJSON file, using <a href="http://turfjs.org/" target="_blank">turf</a>.</p>
+<pre><code>    const fs = require(&#39;fs&#39;);
+    const turf = require(&#39;@turf/turf&#39;);
+    
+    const NEIGHBORHOODS_FILE = &#39;./GEBIED_BUURTCOMBINATIES_EXWATER.json&#39;;
+    const SOLAR_FILE = &#39;./ZONNEPANELEN2017.json&#39;;
+    const OUT_FILE = &#39;./heatmap.json&#39;;
+    
+    var nhoods = JSON.parse(fs.readFileSync(NEIGHBORHOODS_FILE, {encoding: &#39;utf8&#39;}));
+    var solar = JSON.parse(fs.readFileSync(SOLAR_FILE, {encoding: &#39;utf8&#39;}));
+    
+    nhoods.features.forEach(function(feature) {
+        // get list of solar panels within neighborhood polygon
+        var points = turf.pointsWithinPolygon(solar, feature)
+
+        // add total number of panels as property to neighborhood
+        feature.properties.count = points.features.length;
+
+        // add total power generated as property to neighborhood
+        feature.properties.totalPower = 0;
+        points.features.forEach(function(point) {
+            feature.properties.totalPower += +point.properties.Vermogen;
+        });
+    });
+    
+    fs.writeFileSync(OUT_FILE, JSON.stringify(nhoods), {encoding: &#39;utf8&#39;})
+    
+</code></pre>
+<p>We can run this preprocessing script with <code>node process.js</code>, which will generate a file named <code>heatmap.json</code>. Finally, let&#39;s upload this to an XYZ space.</p>
+<pre><code>here xyz upload -f heatmap.json [SpaceID]
+</code></pre>
+<p><img alt="heatmap upload" src="img/816fefa77738dedb.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="View the tiled data in Tangram" duration="0">
+        <p>If we want to see more datasets, Leaflet can&#39;t handle that many points. The XYZ API supports <em>tiling</em> vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We&#39;ll use <a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a>, an open-source WebGL based map viewer.</p>
+<p>First, we&#39;ll create a boilerplate Tangram map, just like we did with Leaflet. In this case, we&#39;ll need another file in addition to <code>index.html</code>: we&#39;ll need a <code>scene.yaml</code> file that defines the stylesheet and data sources for the map.</p>
+<p>Now, to load our XYZ data on top of this Tangram map, we&#39;ll need to add a <code>source</code> to our scene file for each dataset. The tiled endpoint has this format: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}</code>.</p>
+<pre><code>sources:
+    solar:
+        url: https://xyz.api.here.com/hub/spaces/[SpaceID1]/tile/web/{z}_{x}_{y}
+        url_params:
+            access_token: [AccessToken]
+            clip: true
+        type: GeoJSON
+    neighborhoods:
+        url: https://xyz.api.here.com/hub/spaces/[SpaceID2]/tile/web/{z}_{x}_{y}
+        url_params:
+            access_token: [AccessToken]
+            clip: true
+        type: GeoJSON
+    trees:
+        url: https://xyz.api.here.com/hub/spaces/[SpaceID3]/tile/web/{z}_{x}_{y}
+        url_params:
+            access_token: [AccessToken]
+            clip: true
+        type: GeoJSON
+</code></pre>
+<p>Let&#39;s draw the solar data by adding a new layer to the stylesheet:</p>
+<pre><code>layers:
+    _solar:
+        data: {source: solar}
+        enabled: true
+        _all:
+            draw:
+                points:
+                    collide: false
+                    color: &#34;#000000&#34;
+                    size: 5
+</code></pre>
+<p>Here&#39;s our <a href="https://stamen.github.io/here-xyz-demo/solar-tangram/index-step1.html" target="_blank">basic map</a>!</p>
+<p><img alt="Basic map screenshot" src="img/c2c685ad84fd1dc.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Style the data" duration="0">
+        <p>Tangram rendering</p>
+<ol type="1">
+<li>Render the solar panels as circles of varying width and color.</li>
+</ol>
+<pre><code>    _solar:
+        data: {source: solar}
+        enabled: true
+        _all:
+            draw:
+                points:
+                    collide: false
+                    color: |
+                        function() {
+                            if (feature.Functie == &#39;Wonen&#39;) {
+                                return &#39;#FF5306&#39;;
+                            } else {
+                                return &#39;#FFC12B&#39;;
+                            }
+                        }
+                    size: |
+                        function() {
+                            var value = +feature.Vermogen;
+                            var size = Math.max(value/20000, 3);
+
+                            // If we are zoomed in very far, make the points bigger
+                            if ($zoom &gt; 13) {
+                               return Math.pow(2, $zoom - 13) * size;
+                            }
+                            return size;
+                        }
+</code></pre>
+<p>Note that we can write normal Javascript to define how the layer is rendered!</p>
+<ol type="1">
+<li>Show neighborhoods as a chloropleth based on total power generated.</li>
+</ol>
+<pre><code>    _neighborhoods:
+        enabled: true
+        data: {source: neighborhoods}
+        draw:
+            _polygons_inlay:
+                interactive: true
+                order: global.sdk_order_under_water_0
+                color: |
+                    function() {
+                        var value = feature.totalPower;
+                        var color = value &gt;= 1267538 ? &#34;rgba(127, 0, 0, 0.5)&#34; :
+                                    value &gt;= 1140784.2 ? &#34;rgba(167, 4, 3, 0.5)&#34; :
+                                    value &gt;= 1014030.4 ? &#34;rgba(200, 29, 19, 0.5)&#34; :
+                                    value &gt;= 887276.6 ? &#34;rgba(224, 69, 48, 0.5)&#34; :
+                                    value &gt;= 760522.8 ? &#34;rgba(241, 108, 73, 0.5)&#34; :
+                                    value &gt;= 633769 ? &#34;rgba(250, 142, 93, 0.5)&#34; :
+                                    value &gt;= 507015.2 ? &#34;rgba(253, 176, 122, 0.5)&#34; :
+                                    value &gt;= 380261.4 ? &#34;rgba(253, 202, 148, 0.5)&#34; :
+                                    value &gt;= 253507.6 ? &#34;rgba(253, 220, 175, 0.5)&#34; :
+                                    value &gt;= 126753.8 ? &#34;rgba(254, 235, 207, 0.5)&#34; :
+                                    &#34;rgba(255, 247, 236, 0.3)&#34;;
+
+                        return color
+
+                    }
+            lines:
+                interactive: true
+                order: global.sdk_order_under_roads_0
+                color: black
+                width: 3px
+</code></pre>
+<p>Here we use the Tangram <code>order</code> property so that the neighborhood boundaries show up underneath roads and water features on the map.</p>
+<ol type="1">
+<li>Draw trees with a variable size based on tree trunk diameter.</li>
+</ol>
+<pre><code>    _trees:
+        enabled: true
+        data: {source: trees}
+        draw: 
+            points:
+                collide: false
+                color: &#39;#00A000&#39;
+                size: |
+                    function() {
+                        var value = feature.Stamdiameter;
+                        var size = value == &#34;0 - 10 cm&#34; ? 1.5 :
+                                   value == &#34;11 - 20 cm&#34; ? 2 :
+                                   value == &#34;21 - 30 cm&#34; ? 2.5 :
+                                   value == &#34;31 - 50 cm&#34; ? 3.25 :
+                                   value == &#34;51 - 75 cm&#34; ? 4 :
+                                   value == &#34;76 - 100 cm&#34; ? 5 :
+                                   1.5;
+
+                        if ($zoom &gt; 13) {
+                            return Math.pow(1.5, $zoom - 13) * size;
+                        }
+
+                        return size;
+                    }
+</code></pre>
+<p><a href="https://stamen.github.io/here-xyz-demo/solar-tangram/index-step2.html" target="_blank">Now we&#39;re starting to get somewhere!</a></p>
+<p><img alt="Map with all layers styled" src="img/5c097e177f8a622f.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Filter the data using a bounding box query" duration="0">
+        <p>It could still use a little more interactivity though.</p>
+<p>Let&#39;s give the user the ability to draw a rectangle on the screen, and then use this as a bounding box query to the XYZ API. We&#39;re going to use a Leaflet extension called <a href="https://github.com/heyman/leaflet-areaselect/" target="_blank">Leaflet-AreaSelect</a>, which provides a nice user interface for drawing a bounding box. Then we trigger a query to the XYZ API&#39;s <code>bbox</code> endpoint:</p>
+<p><code>&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/bbox?access_token=[AccessToken]&amp;west=&#39; + west + &#39;&amp;south=&#39; + south + &#39;&amp;east=&#39; + east + &#39;&amp;north=&#39; + north;</code></p>
+<p>Then we can calculate the number of street trees within that box:</p>
+<pre><code>var bounds = this.getBounds();
+var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/bbox?access_token=[AccessToken]&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
+
+fetch(url).then((response) =&gt; response.json()).then(function(data) {
+    var len = data.features.length;
+    L.popup().setLatLng(map.getCenter()).setContent(formatNumber(len) + &#39; trees selected&#39;).openOn(map);
+});
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Putting it all together" duration="0">
+        <p>Finally, we&#39;ll add some user interface controls for turning layers off and on.</p>
+<pre><code>&lt;div id=&#34;controls&#34;&gt;
+    &lt;div id=&#34;solar&#34; class=&#34;on&#34; onclick=&#34;toggle(&#39;solar&#39;)&#34;&gt;Solar installations&lt;/div&gt;
+    &lt;div id=&#34;neighborhoods&#34; class=&#34;on&#34; onclick=&#34;toggle(&#39;neighborhoods&#39;)&#34;&gt;Neighborhoods&lt;/div&gt;
+    &lt;div id=&#34;trees&#34; class=&#34;off&#34; onclick=&#34;toggle(&#39;trees&#39;)&#34;&gt;Trees&lt;/div&gt;
+    &lt;div id=&#34;counttrees&#34; class=&#34;off&#34; onclick=&#34;countTrees()&#34;&gt;Count trees&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>These buttons will trigger a Javascript function that toggles each layer off and on.</p>
+<pre><code>function toggle(layerName) {
+    layer.scene.config.layers[&#34;_&#34; + layerName].enabled = !layer.scene.config.layers[&#34;_&#34; + layerName].enabled;
+    document.getElementById(layerName).className = layer.scene.config.layers[&#34;_&#34; + layerName].enabled ? &#34;on&#34; : &#34;off&#34;;
+    layer.scene.updateConfig();
+}
+</code></pre>
+<p>The &#34;count trees&#34; button will trigger a function that adds the bounding box selector to the map and triggers the bounding box query we prototyped earlier.</p>
+<pre><code>function countTrees() {
+    if (mode === &#39;trees&#39;) {
+        areaSelect.remove();
+        mode = &#39;solar&#39;;
+    } else {
+        mode = &#39;trees&#39;;
+        areaSelect.addTo(map);
+        areaSelect.on(&#34;change&#34;, function() {
+            var bounds = this.getBounds();
+            var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/bbox?access_token=[AccessToken]&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
+
+            fetch(url).then((response) =&gt; response.json()).then(function(data) {
+                var len = data.features.length;
+                L.popup().setLatLng(map.getCenter()).setContent(formatNumber(len) + &#39; trees selected&#39;).openOn(map);
+            });
+        });
+    }
+}
+</code></pre>
+<p>And that&#39;s our <a href="https://stamen.github.io/here-xyz-demo/solar-tangram/" target="_blank">final map</a>!</p>
+<p><img alt="Finished Amsterdam solar panels and tree map" src="img/fa42ea027b2d5928.png"></p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '0';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>

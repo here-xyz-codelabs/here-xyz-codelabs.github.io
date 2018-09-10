@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "source": "codelabs/tutorial-1-beginner.md",
+  "format": "html",
+  "prefix": "../",
+  "mainga": "UA-49880327-14",
+  "updated": "2018-09-09T23:52:08-07:00",
+  "id": "1",
+  "duration": 0,
+  "title": "Make a map in XYZ Studio",
+  "author": "Stamen Design",
+  "summary": "Make a map in XYZ Studio",
+  "theme": "",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "map"
+  ],
+  "tags": [
+    "js"
+  ],
+  "feedback": "https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues",
+  "ga": "0",
+  "url": "1"
+}

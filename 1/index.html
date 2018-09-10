@@ -1,0 +1,125 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Make a map in XYZ Studio</title>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Make a map in XYZ Studio"
+                  environment="web"
+                  feedback-link="https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>This tutorial shows you how to create a simple map in XYZ studio.</p>
+<h2 class="checklist">What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>The basics of XYZ Studio</li>
+<li>How to upload a GeoJSON file to XYZ Studio</li>
+<li>How to add your new dataset to an XYZ project</li>
+<li>How to style the map with colors and symbols</li>
+<li>How to add interactivity with pop-ups</li>
+<li>How to publish and share your map</li>
+</ul>
+<h2>Prerequisites</h2>
+<ul>
+<li>None</li>
+</ul>
+<p>In this demo we&#39;ll download a public GeoJSON file from the Los Angeles County open data website, then upload it to XYZ Studio.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Downloading the data" duration="0">
+        <p>Go to https://data.lacounty.gov/ and search for &#34;restaurant inventory&#34;.</p>
+<p>Click on &#34;LOS ANGELES COUNTY RESTAURANT AND MARKET INVENTORY&#34;</p>
+<p>It should take you to this page: https://data.lacounty.gov/Health/LOS-ANGELES-COUNTY-RESTAURANT-AND-MARKET-INVENTORY/jf4j-8it9</p>
+<p>By default, it will try to export as a CSV, but in our case we want it as a GeoJSON. To do this, click the &#34;API&#34; button. Then where it says &#34;JSON&#34;, click and change this to &#34;GeoJSON&#34;.</p>
+<p>Then copy the URL (which should be this: https://data.lacounty.gov/resource/46rk-iuuu.geojson)</p>
+<p>But we want to download all the records, so let&#39;s add something to that URL here:</p>
+<p>https://data.lacounty.gov/resource/46rk-iuuu.geojson?$limit=50000</p>
+<p>(you can learn more about the API options from these docs: https://dev.socrata.com/foundry/data.lacounty.gov/46rk-iuuu)</p>
+<p><img alt="download geojson" src="img/476df4b2f0fd24c6.png"></p>
+<p>You can open up this restaurants-data.geojson file if you&#39;re curious about the GeoJSON file format... [but need suggestions on what software will show it nicely-formatted, since it doesn&#39;t have line breaks]</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Uploading to XYZ Studio" duration="0">
+        <p>Now let&#39;s open up XYZ Studio. https://xyz.here.com/studio</p>
+<p>When you open XYZ Studio you&#39;ll see your Dashboard. There is one tab for &#34;Projects&#34; (you can think of these as &#34;maps&#34;) and another tab for &#34;Data Hub&#34; (which is where you can manage data layers to add to your maps).</p>
+<p>At first you&#39;ll see your dashboard, with the &#34;Projects&#34; tab active. If you&#39;re just getting started with Studio, you probably don&#39;t have any projects or data yet.</p>
+<p>Let&#39;s go to Data Hub first, by clicking on that tab. Then click the &#34;Create new dataset&#34; button.</p>
+<p><img alt="XYZ Studio Data Hub" src="img/ff166eebc7c59b0a.png"></p>
+<p>This will bring you to a list of your datasets and a &#34;Upload new dataset&#34; button. Here you can upload the GeoJSON file that you downloaded to your computer.</p>
+<p>Here we could create a new &#34;Project&#34; with the dataset, or we could go to the Projects tab and create one there. Let&#39;s click on the Projects tab now.</p>
+<p>Now we&#39;ll see the project&#39;s page. Let&#39;s give this project a name, something like &#34;LA Restaurants&#34;.</p>
+<p>Right now, there&#39;s no data in our map. All we have is a &#34;basemap&#34;, which is the background map that we will layer our data on top of. You have a few color options for your basemap. Feel free to pick whichever one you like.</p>
+<p>But now we need to add a layer to our map. Click the <code>+ Add</code> button, and a new window will open up, prompting you to add some data from your &#34;Data Hub&#34;. Here we can select the GeoJSON layer that we just uploaded.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Style the data" duration="0">
+        <p>Now let&#39;s navigate back to our Projects and view our &#34;LA Restaurants&#34; project. Use the <code>+ Add</code> button to add a layer to the map, if you haven&#39;t already.</p>
+<p>Adjust the style of the points (currently all the points have to have the same style, but we&#39;re working on attribute-based styling). You can adjust the size, color, stroke, etc.</p>
+<p>You can also customize your pop-up window (called &#34;Cards&#34;) by dragging the fields into a meaningful order, and choosing which field should be the title in the pop-up.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Share the map" duration="0">
+        <p>We&#39;re almost ready to publish our map, but first we have to set the default view. This is called a &#34;bookmark&#34; and we can make one by clicking the bookmark icon near the top.</p>
+<p>Now let&#39;s share the map! Click the &#34;Project Settings&#34; button in the lower left corner of the window. Here you can publish your Project, and get sharable links that anyone can view online or embed in a webpage.</p>
+<p><img alt="XYZ Studio Publish window" src="img/d3acd72e21fe9bb.png"></p>
+<p>The sharable URL will look something like this: https://xyz.here.com/viewer/?project_id=cbb04410-a112-11e8-a434-db0102d2f39c</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '0';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>

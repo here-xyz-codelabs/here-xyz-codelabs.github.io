@@ -1,0 +1,797 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Make a live-updating map with three.js and the XYZ API</title>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Make a live-updating map with three.js and the XYZ API"
+                  environment="web"
+                  feedback-link="https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>This tutorial shows you how to create a 3D map using live-updating data from XYZ Spaces.</p>
+<h2 class="checklist">What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>How to write a script to update and delete data in XYZ via the API.</li>
+<li>How to display points on a 3D globe using three.js</li>
+</ul>
+<h2>Prerequisites</h2>
+<ul>
+<li>Basic familiarity with the command line</li>
+<li>Basic familiarity with JavaScript</li>
+</ul>
+<p>In this demo we&#39;ll use live updated flight tracker data to draw the real-time positions of aircraft on a 3D globe.</p>
+<p><img alt="planes" src="img/19e61b75b7aa62e7.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create a script to refresh to data in XYZ" duration="0">
+        <p>Let&#39;s try out more of the features of the XYZ API, such as adding and deleting features. Here we&#39;re going to write a simple <a href="https://nodejs.org/" target="_blank">node.js</a> script that queries the flights API every minute, and uploads the new points to our XYZ space.</p>
+<p>Create a file called <code>upload.js</code> with your favorite text editor. Now we&#39;ll add a few lines to load some necessary libraries:</p>
+<pre><code>var async = require(&#39;async&#39;)
+var request = require(&#39;request&#39;)
+var fs = require(&#39;fs&#39;)
+var _ = require(&#39;underscore&#39;)
+</code></pre>
+<p>Then add a config object with your space ID:</p>
+<pre><code>/* ===========================================================================*/
+var config = {
+  spaceId: &#39;SpaceID&#39;,
+  token: &#39;AccessToken&#39;
+}
+/* ===========================================================================*/
+</code></pre>
+<p>Now write a query function that will request data for the airports of interest:</p>
+<pre><code>// Only query for the airports of interest, to avoid swamping the server
+function queryData() {
+  var airports = [
+    &#39;KSFO&#39;,
+    &#39;KJFK&#39;,
+    &#39;SBGR&#39;,
+    &#39;EGLL&#39;,
+    &#39;FAOR&#39;,
+    &#39;OMDB&#39;,
+    &#39;ZBAA&#39;,
+    &#39;RJTT&#39;,
+    &#39;RJAA&#39;,
+    &#39;YSSY&#39;
+  ];
+
+  airports.forEach(function(airport) {
+    queryAirport(airport);
+  });
+}
+</code></pre>
+<p>Now we&#39;ll write the a function that will be called for each airport. Because the ADSB Exchange API returns a JSON object that isn&#39;t in GeoJSON format, we need to rewrite the results as proper GeoJSON:</p>
+<pre><code>function queryAirport(airport) {
+  console.log(&#39;fetching data for &#39; + airport + &#39;...&#39;);
+  var geojson = {
+    &#34;type&#34;: &#34;FeatureCollection&#34;,
+    &#34;features&#34;: []
+  }
+  request(&#39;https://public-api.adsbexchange.com/VirtualRadar/AircraftList.json?fAirQ=&#39; + airport,
+  function (error, response, body) {
+
+    var json = JSON.parse(response.body)
+    _.each(json.acList, function(row, index) {
+      if (row.Lat &amp; row.Long) {
+        // check for invalid points
+        if (row.Lat &gt; -90 &amp;&amp; row.Lat &lt; 90
+          &amp;&amp; row.Long &gt; -180 &amp;&amp; row.Long &lt; 180) {
+        geojson.features.push({
+          type: &#34;Feature&#34;,
+          //id: row.Id.toString(),
+          properties: row,
+          geometry: {
+            type: &#34;Point&#34;,
+            coordinates: [row.Long, row.Lat]
+          }
+        })
+       }
+     }
+    })
+    console.log(airport + &#34; got &#34; + geojson.features.length + &#34; features&#34;)
+    addDataToSpace(geojson)
+  })
+}
+</code></pre>
+<p>Then we need a function that will push this new GeoJSON object into our XYZ space. Note that we create a bunch of tags that we might want to use later, and include them in the object when we send it to the XYZ API.</p>
+<p>Since we plan to constantly update this XYZ space, we now will have multiple locations for each plane which is why we need to add more tags to specify the date for each point.</p>
+<pre><code>function addDataToSpace(geojson) {
+
+  async.eachLimit(geojson.features, 10, feature =&gt; {
+
+    // here we&#39;ll upload each record with its own sets of tags.
+    // Tags:
+    //   To airport
+    //   From airport
+    //   date, time (maybe separate these out)
+    //   aircraft registration ID
+
+    var posTime = new Date(feature.properties.PosTime);
+
+    var tags = [
+      &#34;from-&#34; + (feature.properties.From ? feature.properties.From.substring(0,4) : &#34;&#34;),
+      &#34;to-&#34; + (feature.properties.To ? feature.properties.To.substring(0,4) : &#34;&#34;),
+      &#34;reg-&#34; + (feature.properties.Reg ? feature.properties.Reg : &#34;&#34;),
+      &#34;month-&#34; + (posTime.getMonth() + 1),
+      &#34;day-&#34; + posTime.getDate(),
+      &#34;hour-&#34; + posTime.getHours(),
+    ]
+    //console.log(&#39;adding to space with tags: &#39; + tags)
+
+    feature.properties[&#34;@ns:com:here:xyz&#34;] = {
+      &#34;tags&#34;: tags
+    }
+
+    var options = {
+      method: &#39;PUT&#39;,
+      url: &#39;https://xyz.api.here.com/hub/spaces/&#39; + config.spaceId + &#39;/features&#39;, // instead of adding the tags here, I&#39;ll write them into the geojson object above
+      headers:
+       {
+         &#39;Authorization&#39;: &#39;Bearer &#39; + config.token,
+         &#39;Content-Type&#39;: &#39;application/geo+json&#39;
+       },
+      body: JSON.stringify(feature)
+    }
+    request(options, function(error, response, body) {
+      if (error) {
+        console.log(error)
+      }
+    })
+  }, function() {
+    console.log(&#39;done &#39; + geojson.features.length + &#39; features!&#39;)
+  });
+}
+</code></pre>
+<p>And then finally at the end of our script, we&#39;ll call the <code>queryData()</code> function once when the script loads, and then start a timer that will call it again every minute, as long as the script keeps running.</p>
+<pre><code>queryData();
+
+setInterval(function() {
+  queryData()
+}, 60000) // 60 seconds, aka 1 minute(s)
+</code></pre>
+<p>We also don&#39;t want our database to fill up over time, so we also need to add an API request that deletes old locations.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="View the points in three.js" duration="0">
+        <p>If we want to see the points on a 3D map, we can&#39;t use Leaflet or Tangram. So let&#39;s try another frontend library, called three.js.</p>
+<p>Here is a premade spinny globe in three.js.</p>
+<p><img alt="globe" src="img/57e6fdab9a287577.png"></p>
+<p>The details of three.js are not the focus of this tutorial, so to get you started, here is enough code to get up and running with a nice 3D globe. You don&#39;t need to pay much attention to the details if you don&#39;t want to.</p>
+<p>Open up a file called <code>index.html</code> in your favorite text editor, and copy in the following code. First, the HTML headers:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset=utf-8&gt;
+        &lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no&#34;&gt;
+        &lt;title&gt;Live Flights&lt;/title&gt;
+        &lt;style&gt;
+            body { margin: 0; }
+            canvas { width: 100%; height: 100% }
+        &lt;/style&gt;
+    &lt;/head&gt;
+</code></pre>
+<p>Then, the CSS styles we will need for various parts of this map.</p>
+<pre><code>&lt;style&gt;
+body {
+    font-family: sans-serif;
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    color: white;
+}
+#control {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 20px;
+}
+h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: normal;
+}
+.to {
+    color: #FF6464b8
+}
+.from {
+    color: #8AECE4b8;
+}
+#property-list {
+    margin-left: -3px;
+}
+.view {
+    display: inline-block;
+    font-size: 10px;
+    height: 12px;
+    line-height: 10px;
+    border: 1px solid #979797;
+    color: #979797;
+    margin: 3px;
+    padding: 4px;
+    cursor: pointer;
+    background: none;
+}
+.view.selected {
+    border: 1px solid white;
+    color: white;
+}
+#pauseButtonId {
+    position: absolute;
+    border: 1px solid #979797;
+    color: #979797;
+    font-size: 10px;
+    height: 12px;
+    left: 0;
+    bottom: 0;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    padding: 4px;
+}
+#tooltip {
+    position: absolute;
+    display: none;
+    font-size: 10px;
+    background: rgba(0,0,0,0.4);
+    padding: 4px;
+}
+&lt;/style&gt;
+</code></pre>
+<p>And finally, we add the body, which contains the inline javascript to make the globe in three.js:</p>
+<pre><code>   &lt;body style=&#39;margin: 0px; background-color: #000000; overflow: hidden;&#39;&gt;
+    &lt;div id=&#34;control&#34;&gt;
+        &lt;h2&gt;live flights &lt;span class=&#34;to&#34;&gt;to&lt;/span&gt; or &lt;span class=&#34;from&#34;&gt;from&lt;/span&gt;&lt;/h2&gt;
+        &lt;div id=&#34;property-list&#34;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&#34;pauseButtonId&#34;&gt;Pause rotation&lt;/div&gt;
+    &lt;div id=&#34;tooltip&#34;&gt;&lt;/div&gt;
+
+
+        &lt;script src=&#34;https://cdnjs.cloudflare.com/ajax/libs/fetch-jsonp/1.1.3/fetch-jsonp.min.js&#34;&gt;&lt;/script&gt;
+        &lt;script src=&#34;https://d3js.org/d3.v5.min.js&#34;&gt;&lt;/script&gt;
+        &lt;script src=&#34;./js/three.min.js&#34;&gt;&lt;/script&gt;
+        &lt;script src=&#34;./js/CustomOrbitControls.js&#34;&gt;&lt;/script&gt;
+        &lt;script src=&#34;./js/threex.domevents.js&#34;&gt;&lt;/script&gt;
+
+        &lt;script&gt;
+
+            var runAnim = true;
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            var RADIUS = 1;
+            var MAXHEIGHT = 0.04;
+
+            var pauseButton = document.getElementById(&#39;pauseButtonId&#39;);
+
+            pauseButton.onclick = function ToggleAnimation() {
+              if (runAnim) {
+                pauseButton.innerHTML = &#39;Restart rotation&#39;;
+                runAnim = false;
+              } else {
+                pauseButton.innerHTML = &#39;Pause rotation&#39;;
+                runAnim = true;
+              }
+            }
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.sortObjects = false;
+            document.body.appendChild( renderer.domElement );
+
+            var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+
+            addLights();
+            var world = new THREE.Object3D();
+            addEarth(world);
+            addClouds(world);
+            scene.add(world);
+
+            camera.position.z = 2;
+
+            var rotSpeed = -0.0001;
+            var controls = new OrbitControls( camera );
+            controls.maxDistance = 10;
+            controls.minDistance = 1.2;
+
+            var animate = function () {
+                requestAnimationFrame( animate );
+
+                if (runAnim) {
+                  var x = camera.position.x;
+                  var z = camera.position.z;
+                  camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+                  camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+                }
+                renderer.render( scene, camera );
+                controls.update();
+            };
+
+            window.addEventListener( &#39;resize&#39;, onWindowResize, false );
+            function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+            }
+
+            animate();
+
+            function addEarth(obj) {
+                // flat earth
+                // var geometry = new THREE.CylinderGeometry( 1, 1, 0.05, 64 );
+                var geometry = new THREE.SphereGeometry( RADIUS, 32, 32 );
+
+                var material = new THREE.MeshPhongMaterial({
+                    map: new THREE.TextureLoader().load( &#39;./img/8081_earthmap4k.jpg&#39;)
+                    ,bumpMap: new THREE.TextureLoader().load( &#39;./img/8081_earthbump4k.jpg&#39;)
+                    ,bumpScale: 0.007
+                    ,specularMap: new THREE.TextureLoader().load( &#39;./img/8081_earthspec4k.jpg&#39;)
+                    ,specular: new THREE.Color(0x0E0E0E)
+
+                })
+
+                obj.add( new THREE.Mesh( geometry, material ));
+
+                return obj;
+
+            }
+
+            function addClouds(obj) {
+                var spGeo = new THREE.SphereGeometry(RADIUS, 36, 36 );
+                var cloudsTexture = THREE.ImageUtils.loadTexture( &#34;./img/8081_earthhiresclouds4K.jpg&#34; );
+                var materialClouds = new THREE.MeshLambertMaterial( { color: 0xffffff, map: cloudsTexture, transparent:true, opacity:0.4 } );
+
+                meshClouds = new THREE.Mesh( spGeo, materialClouds );
+                meshClouds.scale.set( 1.015, 1.015, 1.015 );
+                obj.add( meshClouds );
+            }
+
+            function addLights() {
+                var lights = [];
+                lights[ 0 ] = new THREE.PointLight( 0x909090, 1, 0 );
+                lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+                lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+                lights[ 3 ] = new THREE.AmbientLight( 0x706570 ); // soft white light
+
+                lights[ 0 ].position.set( 0, 400, 0 );
+                lights[ 1 ].position.set( 400, 000, 100 );
+                lights[ 2 ].position.set( - 100, - 200, - 100 );
+
+                scene.add( lights[ 0 ] );
+                scene.add( lights[ 1 ] );
+                scene.add( lights[ 2 ] );
+                scene.add( lights[ 3 ] );
+            }
+
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Finally, there are three external JavaScript files which you should download and place in a <code>js/</code> folder beside your <code>index.html</code> file. Here are links to download those files:</p>
+<ol type="1">
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/three.min.js" target="_blank">three.min.js</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/CustomOrbitControls.js" target="_blank">CustomOrbitControls.js</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/threex.domevents.js" target="_blank">threex.domevents.js</a></li>
+</ol>
+<p>You also need to download some image files (which will be used for the terrain and clouds on our globe). Put these in a folder named <code>img/</code>:</p>
+<ol type="1">
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthbump4k.jpg" target="_blank">8081_earthbump4k.jpg</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthhiresclouds4K.jpg" target="_blank">8081_earthhiresclouds4k.jpg</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthlights4k.jpg" target="_blank">8081_earthlights4k.jpg</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthmap4k.jpg" target="_blank">8081_earthmap4k.jpg</a></li>
+<li><a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthspec4k.jpg" target="_blank">8081_earthspec4k.jpg</a></li>
+</ol>
+<p>At this point our code looks like <a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step1.html" target="_blank">this</a></p>
+<p>And here&#39;s a demo of the <a href="https://stamen.github.io/here-xyz-demo/flights-threejs/index-step1.html" target="_blank">globe without any planes</a>.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add the planes to our globe" duration="0">
+        <p><img alt="planes" src="img/19e61b75b7aa62e7.png"></p>
+<p>Next we need to add an API query to get the latest plane locations.</p>
+<p>At the end of your script, add this code (after the <code>addLights()</code> function).</p>
+<pre><code>            var mostRecent = {};  // Need to track which data is the most recent for each plane, in case we have multiple records for each plane.
+
+            var airport = &#39;KJFK&#39;;
+
+            function fetchPlanes() {
+                console.log(&#39;fetching planes&#39;, airport);
+                var p = fetch(&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=to-&#39; + airport).then(function(response) {
+                    return response.json()
+                }).then(function(json) {
+                    var p2 = fetch(&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=from-&#39; + airport).then(function(response2) {
+                        return response2.json()
+                    }).then(function(json2) {
+                        //window.data = json;
+                        planeData = [...json.features,...json2.features];
+                        console.log(&#34;planeData number of records: &#34; + planeData.length);
+                        planeData.forEach(a =&gt; {
+                            // tag to and from
+                            if (a.properties.To.indexOf(airport) !== -1) {
+                                a.direction = &#39;to&#39;;
+                            } else {
+                                a.direction = &#39;from&#39;;
+                            }
+                            // track which is most recent
+                            if (!mostRecent.hasOwnProperty(a.properties.Call)
+                              || mostRecent[a.properties.Call] &lt; a.properties.PosTime) {
+                                mostRecent[a.properties.Call] = a.properties.PosTime;
+                            }
+                        });
+                        addPlanes(planeData.filter(a =&gt; a.properties.Lat) // check to be sure we have coords
+                                           .filter(a =&gt; { return a.properties.PosTime === mostRecent[a.properties.Call];}) // only display most recent
+                          , world);
+                   });
+                });
+            }
+
+            fetchPlanes();
+            setInterval(fetchPlanes, 30000);
+</code></pre>
+<aside class="warning"><p>Note: Make sure to replace the <code>[SpaceID]</code> and the <code>[AccessToken]</code> with your own credentials.</p>
+</aside>
+<aside class="special"><p>Note how we use the <code>setInterval()</code> function to call <code>fetchPlanes()</code> every 30 seconds, to see if there is any new data in our XYZ space.</p>
+</aside>
+<p>Now we add the aircraft to the map, using the latitude and longitude to position them on the globe, and using the elevation to raise them up off of the earth&#39;s surface. After the <code>addClouds()</code> function, add these lines:</p>
+<pre><code>            // convert the positions from a lat, lon to a position on a sphere.
+            function latLongToVector3(lat, lon, radius) {
+                var phi = (lat)*Math.PI/180;
+                var theta = (lon-180)*Math.PI/180;
+
+                var x = -(radius) * Math.cos(phi) * Math.cos(theta);
+                var y = (radius) * Math.sin(phi);
+                var z = (radius) * Math.cos(phi) * Math.sin(theta);
+
+                return new THREE.Vector3(x,y,z);
+            }
+
+            function trakToRad(trak) {
+                // trak is between 0 and 360, where 0 is pointing
+                // +x is right
+                // +y is up
+                // +z is towards you
+                trak = +trak;
+                trak *= -1;
+                if (!trak) {
+                    return 0;
+                }
+                return trak * Math.PI / 180;
+
+            }
+
+var planeObjs = [];
+            var planeData = [];
+            function addPlanes(planes, world) {
+                console.log(&#34;addPlanes number of records: &#34; + planes.length);
+                var domain = d3.extent(planes, p =&gt; +p.properties.Alt);
+                var height = d3.scaleLinear().domain(domain).range([0.01, MAXHEIGHT]);
+                //var height = d3.scaleLinear().domain(domain).range([0.01, MAXHEIGHT*0.6]); // 0.6 factor works only for SFO?! See issue #8
+
+                // could be more efficient and do an object merge, but this
+                // seems fast enough since we don&#39;t update very often
+                planeObjs.forEach(function(obj) {
+                    world.remove(obj);
+                });
+
+                planeObjs = [];
+
+                planes.forEach(function(plane) {
+                    var stick = new THREE.Object3D();
+                    world.add(stick);
+
+                    var lat = plane.geometry.coordinates[1]; // or +plane.properties.Lat
+                    var lng = plane.geometry.coordinates[0]; // or +plane.properties.Long
+                    var alt = +plane.properties.Alt;
+                    var coneWidth = 0.003 * RADIUS;
+                    var coneHeight = 0.01 * RADIUS;
+
+                    var radius = RADIUS + height(alt) * RADIUS
+
+                    var position = latLongToVector3(lat, lng, radius);
+                    stick.lookAt(position);
+
+                    // make a cone facing the position of the plane
+                    var color = plane.direction === &#39;to&#39; ? 0xFF6464 : 0x8AECE4;
+                    var mat = new THREE.MeshLambertMaterial({color: color, transparent: true, opacity: 0.8});
+                    var point = new THREE.Mesh(new THREE.ConeGeometry(coneWidth, coneHeight, 16 ), mat)
+
+                    point.position.set(0, 0, radius);
+                    point.rotation.z = trakToRad(plane.properties.Trak);
+
+                    stick.add(point);
+                    planeObjs.push(stick);
+
+                });
+            }
+</code></pre>
+<p>At this point our code looks like <a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step2.html" target="_blank">this</a>.</p>
+<p>And here&#39;s a demo of our <a href="https://stamen.github.io/here-xyz-demo/flights-threejs/index-step2.html" target="_blank">globe with some planes on it</a>!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add airport picker" duration="0">
+        <p><img alt="airports" src="img/b961ccde75ba5022.png"></p>
+<p>Next let&#39;s add some buttons so the user can choose different airports and trigger a new XYZ query to get updated data.</p>
+<p>First, we create a data structure of all our airports. Add this at the beginning of your <code>&lt;script&gt;</code> before the line <code>var runAnim = true;</code>:</p>
+<pre><code>            var airports = [
+                {
+                    name: &#39;New York City&#39;,
+                    code: &#39;KJFK&#39;,
+                    location: [40.63980103, -73.77890015]
+                },
+                {
+                    name: &#39;San Francisco&#39;,
+                    code: &#39;KSFO&#39;,
+                    location: [37.61899948120117, -122.375]
+                },
+                {
+                    name: &#39;São Paulo&#39;,
+                    code: &#39;SBGR&#39;,
+                    location: [-23.431807, -46.467723]
+                },
+                {
+                    name: &#39;London&#39;,
+                    code: &#39;EGLL&#39;,
+                    location: [51.471225, -0.461443]
+                },
+                {
+                    name: &#39;Johannesburg&#39;,
+                    code: &#39;FAOR&#39;,
+                    location: [-26.136335, 28.245847]
+                },
+                {
+                    name: &#39;Dubai&#39;,
+                    code: &#39;OMDB&#39;,
+                    location: [25.254908, 55.364271]
+                },
+                {
+                    name: &#39;Beijing&#39;,
+                    code: &#39;ZBAA&#39;,
+                    location: [40.07882, 116.584931]
+                },
+                {
+                    name: &#39;Haneda&#39;,
+                    code: &#39;RJTT&#39;,
+                    location: [35.545841, 139.79194],
+                },
+                {
+                    name: &#39;Narita&#39;,
+                    code: &#39;RJAA&#39;,
+                    location: [35.773018, 140.380218]
+                },
+                {
+                    name: &#39;Sydney&#39;,
+                    code: &#39;YSSY&#39;,
+                    location: [-33.950228, 151.178772]
+                }
+            ];
+</code></pre>
+<p>Then, after <code>addEarth(world);</code> add this line:</p>
+<pre><code>addAirports(world);
+</code></pre>
+<p>Then add the following functions. First, one that will zoom the globe to whatever location we select (in this case, we&#39;ll use it to zoom to the selected airport):</p>
+<pre><code>            function zoomTo(location) {
+                let azimuthal = (location[1] / 360 * 2 * Math.PI + Math.PI/2);
+                if (azimuthal &gt; Math.PI) azimuthal -= Math.PI * 2;
+                let polar =  Math.PI/2 - (location[0] / 360 * 2 * Math.PI);
+
+                function adjustAngle() {
+                    const azimuthal_difference = azimuthal - controls.getAzimuthalAngle();
+                    const polar_difference = polar - controls.getPolarAngle();
+
+                    const next_polar = controls.getPolarAngle() + polar_difference * 0.15;
+                    const next_azimuthal = controls.getAzimuthalAngle() + azimuthal_difference * 0.15;
+
+                    controls.setPolarAngle(next_polar);
+                    controls.setAzimuthalAngle(next_azimuthal);
+                }
+
+                let zoomInterval = window.setInterval(adjustAngle, 30);
+                window.setTimeout(function() { clearInterval(zoomInterval) }, 1000);
+            }
+</code></pre>
+<p>And this function which will draw a small marker at each of the airports:</p>
+<pre><code>            function addAirports(world) {
+                airports.forEach(function(a) {
+                    var marker = new THREE.Object3D();
+                    world.add(marker);
+
+                    var lat = a.location[0];
+                    var lng = a.location[1];
+
+                    var position = latLongToVector3(lat, lng, RADIUS);
+                    marker.lookAt(position);
+
+                    var color = 0xe81099;
+                    var mat = new THREE.MeshLambertMaterial({color: color, transparent: true, opacity: 0.75});
+                    var point = new THREE.Mesh(new THREE.SphereGeometry(RADIUS * 0.005, 16, 16), mat)
+
+                    point.position.set(0, 0, RADIUS);
+
+                    marker.add(point);
+                });
+            }
+</code></pre>
+<p>And this function which will render a list of buttons, one for each airport. When a button is clicked, we use <code>fetchPlanes()</code> to download new data, and then we use <code>zoomTo()</code> to spin the globe to the selected airport:</p>
+<pre><code>            function renderAirportPicker() {
+                var pp = d3.select(&#39;#property-list&#39;).selectAll(&#39;.view&#39;).data(airports);
+                pp.enter()
+                    .append(&#39;div&#39;)
+                    .classed(&#39;view&#39;, true)
+                    .on(&#39;click&#39;, d =&gt; {
+                        airport = d.code;
+                        renderAirportPicker();
+                        fetchPlanes();
+                        zoomTo(d.location);
+                    })
+                    .text(d =&gt; d.name)
+                    .merge(pp)
+                    .classed(&#39;selected&#39;, d =&gt; d.code === airport);
+            }
+</code></pre>
+<p>And finally at the end of our script, we need to render that selection tool:</p>
+<pre><code>            renderAirportPicker();
+</code></pre>
+<p>At this point our code looks like <a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step3.html" target="_blank">this</a>.</p>
+<p>And here&#39;s a demo of our <a href="https://stamen.github.io/here-xyz-demo/flights-threejs/index-step3.html" target="_blank">globe with an airport picker</a>!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add mouseovers" duration="0">
+        <p><img alt="mouseover" src="img/bef8057eb12d8fb.png"></p>
+<p>But what if we want to find out more information about one of these aircraft? Let&#39;s add some mouseover interactivity.</p>
+<p>First, within our addPlanes() function, we need to pull more information from the GeoJSON data and add it to each plane object so we can use it in the mouseover. After the <code>point.rotation.z = trakToRad(plane.properties.Trak);</code> line, add this code:</p>
+<pre><code>                    point.name = plane.properties.Reg;
+
+                    domEvents.addEventListener(point, &#39;mouseover&#39;, function(object3d){
+                      showTooltip([object3d.origDomEvent.pageX, object3d.origDomEvent.pageY], planeData.filter(d =&gt; d.properties.Reg === object3d.target.name)[0]);
+                    });
+                    domEvents.addEventListener(point, &#39;mouseout&#39;, function(object3d){
+                      hideTooltip();
+                      console.log(&#34;mouseout&#34;);
+                    });
+</code></pre>
+<p>This will show the tooltip whenever we mouse over the object. But we also need to define what the tooltip looks like. So after the end of the <code>addPlanes()</code> function, and before the <code>addLights()</code> function, add this code:</p>
+<pre><code>            var tooltip= d3.select(&#34;#tooltip&#34;);
+            function showTooltip(mouse_position, datum) {
+              if (!datum) { console.log(&#34;no data for mouseover&#34;); return; }
+              let x_offset = 20;
+              let y_offset = 20;
+              tooltip.style(&#34;display&#34;,&#34;block&#34;);
+              tooltip.style(&#34;left&#34;,mouse_position[0] + x_offset + &#34;px&#34;);
+              tooltip.style(&#34;top&#34;,mouse_position[1] + y_offset + &#34;px&#34;);
+              tooltip.html(&#34;Callsign: &#34; + (datum.properties.Call || &#34;&#34;)
+                           + &#34;&lt;br&gt;Operator: &#34; + (datum.properties.Op || &#34;&#34;)
+                           + &#34;&lt;br&gt;Type: &#34; + (datum.properties.Type || &#34;&#34;)
+                           + &#34;&lt;br&gt;Registration: &#34; + (datum.properties.Reg || &#34;&#34;)
+                           + &#34;&lt;br&gt;From: &#34; + (datum.properties.From || &#34;&#34;)
+                           + &#34;&lt;br&gt;To: &#34; + (datum.properties.To || &#34;&#34;));
+            }
+            function hideTooltip() {
+              tooltip.style(&#34;display&#34;,&#34;none&#34;);
+            }
+</code></pre>
+<p>At this point our code looks like <a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step4.html" target="_blank">this</a>.</p>
+<p>And here&#39;s a demo of our <a href="https://stamen.github.io/here-xyz-demo/flights-threejs/index-step4.html" target="_blank">globe with aircraft mouseovers</a>!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add aircraft trails" duration="0">
+        <p><img alt="mouseover" src="img/f6ff19736b8808cb.png"></p>
+<p>In order to show the trails, we will style them with a smaller icon if they&#39;re not the most recent point for each plane.</p>
+<p>After our <code>addPlanes()</code> function, add this code:</p>
+<pre><code>            var planeTrailObjs = [];
+            function addPlaneTrails(planes, world) {
+                console.log(&#34;addPlaneTrails number of records: &#34; + planes.length);
+                var domain = d3.extent(planes, p =&gt; +p.properties.Alt);
+                var height = d3.scaleLinear().domain(domain).range([0.01, MAXHEIGHT]);
+
+                // could be more efficient and do an object merge, but this
+                // seems fast enough since we don&#39;t update very often
+                planeTrailObjs.forEach(function(obj) {
+                    world.remove(obj);
+                });
+
+                planeTrailObjs = [];
+
+                planes.forEach(function(plane) {
+                    var stick = new THREE.Object3D();
+                    world.add(stick);
+
+                    var lat = plane.geometry.coordinates[1]; // or +plane.properties.Lat
+                    var lng = plane.geometry.coordinates[0]; // or +plane.properties.Long
+                    var alt = +plane.properties.Alt;
+                    var coneWidth = 0.003 * RADIUS;
+                    var coneHeight = 0.01 * RADIUS;
+
+                    var radius = RADIUS + height(alt) * RADIUS
+
+                    var position = latLongToVector3(lat, lng, radius);
+                    stick.lookAt(position);
+
+                    // make a small sphere
+                    var color = plane.direction === &#39;to&#39; ? 0xFF6464 : 0x8AECE4;
+                    var mat = new THREE.MeshLambertMaterial({color: color, transparent: true, opacity: 0.8});
+                    var point = new THREE.Mesh(new THREE.SphereGeometry(coneWidth/2, 16, 16), mat)
+
+                    point.position.set(0, 0, radius);
+                    point.rotation.z = trakToRad(plane.properties.Trak);
+                    point.name = plane.properties.Reg;
+
+
+                    stick.add(point);
+                    planeTrailObjs.push(stick);
+
+                });
+            }
+</code></pre>
+<p>And finally, near the end of our <code>fetchPlanes()</code> function, after we call <code>addPlanes()</code>, add this code to add the plane trails too:</p>
+<pre><code>                        addPlaneTrails(planeData.filter(a =&gt; a.properties.Lat) // check to be sure we have coords
+                                           .filter(a =&gt; { return a.properties.PosTime !== mostRecent[a.properties.Call];}) // only display most recent
+                          , world);
+</code></pre>
+<p>At this point our code looks like <a href="https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index.html" target="_blank">this</a>.</p>
+<p>And here&#39;s a demo of <a href="https://stamen.github.io/here-xyz-demo/flights-threejs/" target="_blank">our final globe</a>!</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '0';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>

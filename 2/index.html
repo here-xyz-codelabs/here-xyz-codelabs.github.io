@@ -1,0 +1,488 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Make a map with Leaflet and the XYZ API</title>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, #F8F9FA);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Make a map with Leaflet and the XYZ API"
+                  environment="web"
+                  feedback-link="https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p>This tutorial shows you how to create a Leaflet map using data from XYZ Spaces.</p>
+<h2 class="checklist">What you&#39;ll learn</h2>
+<ul class="checklist">
+<li>The basics of using tags in XYZ Spaces</li>
+<li>How to upload a GeoJSON file to XYZ via the command line tool</li>
+<li>How to view your data in Leaflet</li>
+<li>How to interactively filter your data using XYZ tags</li>
+</ul>
+<h2>Prerequisites</h2>
+<ul>
+<li>Basic familiarity with the command line</li>
+<li>Basic familiarity with JavaScript</li>
+</ul>
+<p>In this demo we&#39;ll download some air quality readings for the city of Madrid and plot the data on an interactive map.</p>
+<p><img alt="XYZ Leaflet map" src="img/1a21b26607171473.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Getting the data" duration="0">
+        <p>In this demo we&#39;ll load up a large dataset into the xyz platform and query small slices of that data for rendering on a map. We&#39;ll use the Madrid Air Quality dataset, graciously organized by kaggle here:</p>
+<p><a href="https://www.kaggle.com/decide-soluciones/air-quality-madrid/home" target="_blank">https://www.kaggle.com/decide-soluciones/air-quality-madrid/home</a></p>
+<p><img alt="Kaggle" src="img/f112d68efc6b4d5f.png"></p>
+<p>This dataset provides sensor measurements of various types of pollution in Madrid, Spain at an hourly resolution from 2001 - 2018. For the purpose of this demo we&#39;ll just use one year&#39;s worth of data.</p>
+<aside class="special"><p>Note: You will have to create a free account on Kaggle to download the data.</p>
+</aside>
+<p>Click the <code>Download</code> button to get the zip file containing the data.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Preprocessing the data" duration="0">
+        <p>After unzipping the dataset, you&#39;ll see a <code>stations.csv</code> that looks like:</p>
+<p><img alt="CSV 1" src="img/1ae800edc4584e28.png"></p>
+<p>in the <code>csvs_per_year</code> folder, there is one file per year. we&#39;ll use just 2001 <code>madrid_2001.csv</code></p>
+<p><img alt="CSV 2" src="img/37911b5084cd8647.png"></p>
+<p>Data in an xyz space should always have geometry information. In this case, we want every station&#39;s hourly pollution measurement to be a datapoint. Since the station is referenced by id in <code>madrid_2001.csv</code>, we will have to join this file with <code>stations.csv</code> to get that coordinates of the  measurement in the same row.</p>
+<p>We could write a script to do this operation, but since this is a common task, we&#39;ll use an off the shelf tool called <a href="https://csvkit.readthedocs.io/en/1.0.3/" target="_blank">csvkit</a> to do this operation. csvkit is a collection of command line tools to process csvs. It can do things like cut up, merge and view csvs. For example, to generate the views of the csvs above, we can use the <code>csvlook</code> command provided in csvkit.</p>
+<pre><code>    head madrid_2001.csv | csvlook
+</code></pre>
+<p>To merge the sensor data and the station data, we&#39;ll use the csvjoin command:</p>
+<pre><code>    csvjoin -c &#34;station,id&#34; --left csvs_per_year/madrid_2001.csv stations.csv &gt; out.csv
+</code></pre>
+<p>After the merge, you should see the merged table in <code>out.csv</code></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Upload data to XYZ using the command line" duration="0">
+        <p>One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn&#39;t let us add tags, so we will use another approach here.</p>
+<p>Specifically, we need to download and install the command line tool.</p>
+<aside class="warning"><p>Note: during the XYZ beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you&#39;re using Windows, OSX, or Linux.</p>
+</aside>
+<p>Once you have the command line tool installed, you&#39;ll need to run <code>here configure</code> to set up your credentials. Specifically, you&#39;ll need your <strong>AppID</strong> and <strong>AppCode</strong>.</p>
+<p>Now try <code>here xyz list</code> to see any spaces you have set up already. You might not have any. Or if you do, you can try <code>here xyz describe [SpaceID]</code> to get some details about one of them.</p>
+<p>Now we&#39;re going to upload the air quality data using the command-line to add the appropriate tags. Before we upload any data, we need to create an empty XYZ space. Here&#39;s how we do that, adding a name and description:</p>
+<p><code>here xyz create --title &#34;urban-air&#34; --message &#34;urban air quality data uploaded from the command line&#34;</code></p>
+<p>You&#39;ll see the response:<br><code>xyzspace &#39;[SpaceID]&#39; created successfully</code></p>
+<p>Instead of &#34;[SpaceID]&#34;, you&#39;ll see an eight-character string of numbers and letters. This is your SpaceID.</p>
+<p>Take note of that ID. We&#39;ll need to use that for pretty much everything else we do. Now we can upload some data. There are a few different flags you can include when uploading data, but the one we&#39;re most interested in right now is <code>-p</code> (or <code>--ptag</code> does the same thing). The <code>-p</code> flag lets us specify some properties in our GeoJSON file that we&#39;d like to convert into XYZ tags. Since we want to be able query the data based on the time, we will tag every datapoint with it&#39;s hourly timestamp. The here CLI tool makes this easy with the property tag command:</p>
+<pre><code>here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]
+</code></pre>
+<p>The <code>-p</code> or <code>--ptag</code> will create tags from the GeoJSON properties.</p>
+<p>To verify that the data has been populated, we can preview it with the show command</p>
+<pre><code>    here xyz show -w [spaceID]
+</code></pre>
+<p><img alt="XYZ CLI show command" src="img/2a9b1a9ce43203ed.png"></p>
+<p>In the data editor, you should see that the properties object of each feature, there is a section for tags:</p>
+<pre><code>        &#34;@ns:com:here:xyz&#34;: {
+          &#34;tags&#34;: [
+            &#34;2001-08-01t01:00:00&#34;,
+            &#34;date@2001-08-01t01:00:00&#34;
+          ],
+          &#34;space&#34;: &#34;sZZXbJam&#34;,
+          &#34;createdAt&#34;: 1531683282547,
+          &#34;updatedAt&#34;: 1531683282547
+        }
+</code></pre>
+<p>In this case the timestamp of the measurement has been turned into a tag.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Reading slices of data" duration="0">
+        <p>The xyz api provides the ability filter a dataset by tag. To try this out, use the geojson viewing tool and change the data provider url</p>
+<p>from</p>
+<pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&amp;access_token=[AccessToken]
+</code></pre>
+<p>to</p>
+<pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?tags=2001-08-01t01:00:00&amp;%27limit=5000&amp;access_token=[AccessToken]
+</code></pre>
+<p>You should see that the previewer re-renders with only data that matches <code>data ==&#39;2001-08-01t01:00:00&#39;</code></p>
+<p>Try changing the date to get different data.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="View the data in a Leaflet map" duration="0">
+        <p>Next, we will view some of this data in Leaflet. Leaflet is a simple mapping library that can draw simple points, lines, and polygons on top of a raster basemap.</p>
+<p>Here is a <a href="https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html" target="_blank">basic Leaflet template</a> which gives us a raster &#34;slippy&#34; map, with nothing on it. To view this code in your browser, you can quickly run a webserver using <code>python -m SimpleHTTPServer</code>. Or you could upload it to your own personal webpage, or use something like blockbuilder.org to view this simple page.</p>
+<aside class="special"><p>Note: This code snippet includes a bunch of CSS that we will use later. We won&#39;t explain most of it in this tutorial. If you&#39;re curious about CSS, there are tons of resources online to learn more.</p>
+</aside>
+<pre><code>&lt;!doctype html&gt;
+&lt;html lang=&#34;en-us&#34;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&#34;utf-8&#34;&gt;
+    &lt;meta http-equiv=&#34;Content-Type&#34; content=&#34;text/html; charset=utf-8&#34;&gt;
+    &lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no&#34;&gt;
+    &lt;title&gt;Madrid Urban Air Quality&lt;/title&gt;
+    &lt;link rel=&#34;stylesheet&#34; href=&#34;https://unpkg.com/leaflet@1.3.3/dist/leaflet.css&#34; /&gt;
+    &lt;link rel=&#34;stylesheet&#34; href=&#34;https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css&#34;&gt;
+    &lt;script src=&#34;https://cdn.jsdelivr.net/npm/flatpickr&#34;&gt;&lt;/script&gt;
+
+    &lt;style&gt;
+        body {
+            font-family: sans-serif;
+            margin: 0px;
+            border: 0px;
+            padding: 0px;
+        }
+        .container {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            position: absolute;
+        }
+        .header {
+            position: absolute;
+            top: -8px;
+            left: 0px;
+            padding-left: 50px;
+            right: 0;
+            padding: 10px;
+            z-index: 1000;
+            background-color: rgba(255,255,255,0.75);
+        }
+        h2 {
+            margin: 10px 0;
+            margin-left: 50px;
+        }
+        h3 {
+            margin: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #property-list, #playback {
+            display: inline-block;
+        }
+
+        .view {
+            display: inline-block;
+            font-size: 12px;
+            border: 1px solid black;
+            border-radius: 3px;
+            margin: 3px;
+            padding: 4px;
+            background: #ffab96;
+        }
+
+        .view:hover {
+            background: dodgerblue;
+            color: white;
+            margin-top: -2px;
+            box-shadow: 1px 1px 1px black;
+        }
+
+        .view:active {
+            margin-top: -2px;
+        }
+
+        #playback {
+            margin-right: 1em;
+            margin-left: 1em;
+        }
+
+        #playback .view {
+            background-color: #ab96ff;
+        }
+
+        .view.selected {
+            background: white;
+            color: black;
+        }
+
+        #datepicker {
+            margin-left: 50px;
+            font-size: 12px;
+        }
+
+        .flatpickr-minute {
+            pointer-events: none;
+        }
+
+        .flatpickr-minute + .arrowUp {
+            pointer-events: none;
+        }
+
+        .flatpickr-minute + .arrowUp + .arrowDown {
+            pointer-events: none;
+        }
+
+        .numInputWrapper:nth-child(3):hover {
+            background: none;
+        }
+
+        .numInputWrapper:nth-child(3):hover .arrowUp {
+            display: none;
+        }
+
+        .numInputWrapper:nth-child(3):hover .arrowDown {
+            display: none;
+        }
+
+
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;div class=&#34;header&#34;&gt;
+        &lt;h2&gt;Madrid Urban Air Quality&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class=&#34;container&#34;&gt;
+        &lt;div id=&#34;map&#34;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- leaflet --&gt;
+    &lt;script src=&#34;https://unpkg.com/leaflet@1.3.3/dist/leaflet.js&#34;&gt;&lt;/script&gt;
+
+    &lt;!-- D3 --&gt;
+    &lt;script src=&#34;https://d3js.org/d3.v5.min.js&#34;&gt;&lt;/script&gt;
+
+    &lt;!-- Demo setup --&gt;
+    &lt;script&gt;
+        var theMap = L.map(&#39;map&#39;, {maxZoom: 14});
+        theMap.attributionControl.addAttribution(&#39;Map tiles by &lt;a href=&#34;http://stamen.com&#34;&gt;Stamen Design&lt;/a&gt;, under &lt;a href=&#34;http://creativecommons.org/licenses/by/3.0&#34;&gt;CC BY 3.0&lt;/a&gt;. Map data by &lt;a href=&#34;http://openstreetmap.org&#34;&gt;OpenStreetMap&lt;/a&gt;, under &lt;a href=&#34;http://www.openstreetmap.org/copyright&#34;&gt;ODbL&lt;/a&gt;&#39;);
+
+        L.tileLayer(&#39;http://tile.stamen.com/terrain/{z}/{x}/{y}.png&#39;).addTo(theMap);
+        // center of madrid
+        theMap.setView([40.416232, -3.703637], 13);
+
+    &lt;/script&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Admire your slippy map! It should look like <a href="https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index-step1.html" target="_blank">this</a>:</p>
+<p><img alt="XYZ Leaflet map" src="img/5a86a15aecbcba08.png"></p>
+<p>Now it&#39;s time to get some data on it!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Load the data onto your map" duration="0">
+        <p>We will load a GeoJSON layer from our XYZ space like so: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=2001-08-01t01:00:00</code></p>
+<p>Note that we have to include a date tag filter, or else we will see hundreds of points stacked on top of each other at each air quality station.</p>
+<p>So let&#39;s extend our code to load that data and to draw some circles on our map.</p>
+<p>First, add this code at the very beginning of our script, before the line <code>var theMap = L.map(&#39;map&#39;, {maxZoom: 14});</code>:</p>
+<pre><code>        var circles = [];
+        var initDate = &#39;2001-02-23t09:00:00&#39;;
+        var timeFormatter = d3.timeFormat(&#39;%Y-%m-%dt%H:%M:%S&#39;);
+        var numberFormatter = d3.format(&#34;.1f&#34;);
+
+        var properties = [
+            { code: &#39;BEN&#39;, desc: &#39;benzene level measured in μg/m³&#39; },
+            { code: &#39;CO&#39;, desc: &#39;carbon monoxide level measured in mg/m³&#39; },
+            { code: &#39;EBE&#39;, desc: &#39;ethylbenzene level measured in μg/m³&#39; },
+            { code: &#39;MXY&#39;, desc: &#39;m-xylene level measured in μg/m³&#39; },
+            { code: &#39;NMHC&#39;, desc: &#39;non-methane hydrocarbons level measured in mg/m³&#39; },
+            { code: &#39;NO_2&#39;, desc: &#39;nitrogen dioxide level measured in μg/m³&#39; },
+            { code: &#39;NOx&#39;, desc: &#39;nitrous oxides level measured in μg/m³&#39; },
+            { code: &#39;OXY&#39;, desc: &#39;o-xylene level measured in μg/m³&#39; },
+            { code: &#39;O_3&#39;, desc: &#39;ozone level measured in μg/m³&#39; },
+            { code: &#39;PM10&#39;, desc: &#39;particles smaller than 10 μm&#39; },
+            { code: &#39;PXY&#39;, desc: &#39;p-xylene level measured in μg/m³&#39; },
+            { code: &#39;SO_2&#39;, desc: &#39;sulphur dioxide level measured in μg/m³&#39; },
+            { code: &#39;TCH&#39;, desc: &#39;total hydrocarbons level measured in mg/m³&#39; },
+            { code: &#39;TOL&#39;, desc: &#39;toluene (methylbenzene) level measured in μg/m³&#39; }
+        ];
+        var currProperty = &#39;PM10&#39;;
+</code></pre>
+<p>All of that is just to help us parse the dates and to display descriptions for the various air quality indicators.</p>
+<p>Next, add this code add the end of our script, basically all after the line <code>theMap.setView([40.416232, -3.703637], 13);</code></p>
+<pre><code>        var radiusScale = d3.scaleLinear().domain([0, 200]).range([7, 70]).clamp(true);
+        var colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, 100]);
+        function renderCircles() {
+            // remove old markers
+            circles.forEach(function (c) { c.remove(); })
+            circles = [];
+
+            theData.features.forEach(function (feature) {
+                var c = L.circleMarker(
+                    [feature.geometry.coordinates[1], feature.geometry.coordinates[0]],
+                    {
+                        radius: radiusScale(feature.properties[currProperty]),
+                        // color: colorScale(feature.properties[currProperty]),
+                        color: &#39;black&#39;,
+                        fillColor: colorScale(feature.properties[currProperty]),
+                        fillOpacity: 0.5
+                    });
+                c.addTo(theMap);
+                c.bindTooltip(&#39;&lt;h3&gt;&#39; + feature.properties.name + &#39;&lt;/h3&gt;&#39; + &#39;&lt;b&gt;&#39; + currProperty + &#39;: &lt;/b&gt;&#39; + numberFormatter(feature.properties[currProperty]) + &#39;&lt;br&gt;&#39; + properties.filter(d =&gt; d.code === currProperty)[0].desc);
+                circles.push(c);
+            });
+        }
+
+        function fetchData(dateStr) {
+            var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=100&amp;access_token=[AccessToken]&amp;tags=&#39; + dateStr;
+            d3.json(url).then(function(data) {
+                theData = data;
+                renderCircles();
+            });
+        }
+
+        fetchData(initDate);
+</code></pre>
+<p>In this block of code, we&#39;re actually using <a href="https://d3js.org/" target="_blank">d3.js</a> to calculate appropriate circle sizes, but we&#39;re still using Leaflet to draw the circles on the map.</p>
+<p>Note that we also add a tooltip to the circles, so you can see the raw data when you hover over a circle on the map.</p>
+<p>At the end of this block of code, you can see the fetchData() function which is where we query the XYZ API to get the data.</p>
+<aside class="special"><p>Remember to add your own <strong>SpaceID</strong> and <strong>AccessToken</strong> to the code snippet above!</p>
+</aside>
+<p>Now your map should look something like <a href="https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index-step2.html" target="_blank">this</a>:</p>
+<p><img alt="XYZ Leaflet map" src="img/e974c4405bd0468d.png"></p>
+<p>Next we will add some interactivity...</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add some controls to select different air quality indicators" duration="0">
+        <p>Each record returned by our XYZ query includes several different air quality measurements. Let&#39;s add some simple selection buttons so our user can view the different values in our data.</p>
+<p>First add a new HTML element after the line <code>&lt;h2&gt;Madrid Urban Air Quality&lt;/h2&gt;</code></p>
+<pre><code>       &lt;div id=&#34;property-list&#34;&gt;&lt;/div&gt;
+</code></pre>
+<p>This div is where our buttons will go.</p>
+<p>Now, after we define our <code>properties</code> object (specifically, after the line <code>var currProperty = &#39;PM10&#39;;</code>) we will add a new function that will draw selection buttons for each air quality metric. When clicked, each button will re-render the circles using the new selected metric.</p>
+<pre><code>        function renderProperties() {
+            var pp = d3.select(&#39;#property-list&#39;).selectAll(&#39;.view&#39;).data(properties);
+            pp.enter()
+                .append(&#39;div&#39;)
+                .classed(&#39;view&#39;, true)
+                .on(&#39;click&#39;, d =&gt; {
+                    currProperty = d.code;
+                    renderProperties();
+                    renderCircles();
+                })
+                .attr(&#39;title&#39;, d =&gt; d.desc)
+                .text(d =&gt; d.code)
+                .merge(pp)
+                .classed(&#39;selected&#39;, d =&gt; d.code === currProperty);
+        }
+</code></pre>
+<p>Finally, at the end of our script, we call this function once to draw the buttons:</p>
+<pre><code>        renderProperties();
+
+</code></pre>
+<p>Now your map should look something like <a href="https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index-step3.html" target="_blank">this</a>:</p>
+<p><img alt="XYZ Leaflet map" src="img/abad3a223adb2d31.png"></p>
+<p>Try clicking on the different buttons to see the circles change size!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add controls to illustrate querying XYZ by tag" duration="0">
+        <p>This interactivity is pretty cool, but we&#39;re only viewing different aspects of the data that we&#39;ve already downloaded. Now let&#39;s let the user select data for a different date, which will trigger a new XYZ query and use our XYZ tags to download the correct data.</p>
+<p>We&#39;re going to use the <a href="https://flatpickr.js.org/" target="_blank">flatpickr</a> library, which we already included in the header of our html page. Now, after the line <code>&lt;h2&gt;Madrid Urban Air Quality&lt;/h2&gt;</code>, let&#39;s add an input for our date picker control:</p>
+<pre><code>&lt;input id=&#34;datepicker&#34; class=&#34;flatpickr flatpickr-input&#34; type=&#34;text&#34; placeholder=&#34;Select Date...&#34; readonly=&#34;readonly&#34;&gt;
+</code></pre>
+<p>And then in our script, we need to call the <code>flatpickr</code> function to create the control itself:</p>
+<pre><code>        var calendar = flatpickr(&#34;#datepicker&#34;, {
+            enableTime: true,
+            dateFormat: &#34;Y-m-d H:i&#34;,
+            minDate: &#34;2001-01-01&#34;,
+            maxDate: &#34;2001-12-31&#34;,
+            minuteIncrement: 60,
+            onChange: function(selectedDates, dateStr, instance) {
+                fetchData(timeFormatter(selectedDates[0]))
+            }
+        });
+</code></pre>
+<p>Notice how the date picker will call the <code>fetchData()</code> function anytime the user changes the currently-selected date. If you recall, <code>fetchData()</code> makes a query to XYZ using the requested date tag, and then re-renders the circles with the new data.</p>
+<p>Finally, we need need to add one more line to populate our date picker with the initial date:</p>
+<pre><code>        calendar.setDate(initDate);
+</code></pre>
+<p>Your map should now look like this:</p>
+<p><img alt="XYZ Leaflet map" src="img/20e4fe7966e42bfa.png"></p>
+<p>Click on the date to open up the calendar interface, and try choosing different dates or times to see the map update!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Add a play button" duration="0">
+        <p>The date picker is pretty powerful, because it lets us select any date we choose. However, it&#39;s a bit inconvenient if we simply want to watch how the data changes over time. For our final enhancement, let&#39;s add a play button.</p>
+<p>After the datepicker <code>&lt;input&gt;</code> element, add these lines:</p>
+<pre><code>        &lt;div id=&#34;playback&#34;&gt;
+            &lt;div id=&#34;back&#34; class=&#34;view&#34; onclick=&#34;addHours(-1)&#34;&gt;&amp;lt;&lt;/div&gt;
+            &lt;div id=&#34;play&#34; class=&#34;view&#34; onclick=&#34;play()&#34;&gt;Play&lt;/div&gt;
+            &lt;div id=&#34;next&#34; class=&#34;view&#34; onclick=&#34;addHours(1)&#34;&gt;&amp;gt;&lt;/div&gt;
+        &lt;/div&gt;
+</code></pre>
+<p>These buttons will make it easy to move forward or backward one hour at a time. Now in our <code>&lt;script&gt;</code> tag, add the appropriate functions and variables:</p>
+<pre><code>        function addHours(n) {
+            var selectedDate = calendar.selectedDates[0];
+            selectedDate.setHours(selectedDate.getHours() + n);
+            calendar.setDate(selectedDate, true);
+        }
+
+        var playTimer;
+
+        function play() {
+            if (playTimer) {
+                window.clearInterval(playTimer);
+                playTimer = 0;
+                document.getElementById(&#34;play&#34;).innerHTML = &#34;Play&#34;;
+            } else {
+                playTimer = window.setInterval(function() { addHours(1) }, 1000);
+                document.getElementById(&#34;play&#34;).innerHTML = &#34;Pause&#34;;
+            }
+        }
+</code></pre>
+<p>Now if we reload our map, we should see <a href="https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index.html" target="_blank">this</a>:</p>
+<p><img alt="XYZ Leaflet map" src="img/d43f45111f15650.png"></p>
+<p>Try out the &#34;play&#34; button, or the forward/backward arrows. Each time the map switches to a new date, it is making a new query to XYZ, using on the tags that you created when you uploaded the data. Pretty cool, right?</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '0';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,10 +1,10 @@
 {
   "environment": "web",
-  "source": "codelabs/tutorial-1-beginner.md",
+  "source": "tutorial-1-beginner.md",
   "format": "html",
-  "prefix": "../",
+  "prefix": "../../",
   "mainga": "UA-49880327-14",
-  "updated": "2018-09-09T23:52:08-07:00",
+  "updated": "2018-09-10T22:30:34-07:00",
   "id": "1",
   "duration": 0,
   "title": "Make a map in XYZ Studio",

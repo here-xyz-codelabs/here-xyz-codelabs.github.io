@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#4F7DC9">
   <meta charset="UTF-8">
   <title>Make a map in XYZ Studio</title>
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../elements/codelab.html">
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
   <style is="custom-style">
     body {
@@ -39,54 +39,119 @@
 <ul>
 <li>None</li>
 </ul>
-<p>In this demo we&#39;ll download a public GeoJSON file from the Los Angeles County open data website, then upload it to XYZ Studio.</p>
+<p>In this demo we&#39;ll download a public GeoJSON file of earthquake locations from the USGS, then upload it to XYZ Studio.</p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Downloading the data" duration="0">
-        <p>Go to https://data.lacounty.gov/ and search for &#34;restaurant inventory&#34;.</p>
-<p>Click on &#34;LOS ANGELES COUNTY RESTAURANT AND MARKET INVENTORY&#34;</p>
-<p>It should take you to this page: https://data.lacounty.gov/Health/LOS-ANGELES-COUNTY-RESTAURANT-AND-MARKET-INVENTORY/jf4j-8it9</p>
-<p>By default, it will try to export as a CSV, but in our case we want it as a GeoJSON. To do this, click the &#34;API&#34; button. Then where it says &#34;JSON&#34;, click and change this to &#34;GeoJSON&#34;.</p>
-<p>Then copy the URL (which should be this: https://data.lacounty.gov/resource/46rk-iuuu.geojson)</p>
-<p>But we want to download all the records, so let&#39;s add something to that URL here:</p>
-<p>https://data.lacounty.gov/resource/46rk-iuuu.geojson?$limit=50000</p>
-<p>(you can learn more about the API options from these docs: https://dev.socrata.com/foundry/data.lacounty.gov/46rk-iuuu)</p>
-<p><img alt="download geojson" src="img/476df4b2f0fd24c6.png"></p>
-<p>You can open up this restaurants-data.geojson file if you&#39;re curious about the GeoJSON file format... [but need suggestions on what software will show it nicely-formatted, since it doesn&#39;t have line breaks]</p>
+        <p>Go to <a href="https://earthquake.usgs.gov/earthquakes/feed/" target="_blank">https://earthquake.usgs.gov/earthquakes/feed/</a> and scroll down to &#34;GeoJSON Summary Feed&#34;. Click on that link.</p>
+<p><img alt="usgs downloads" src="img/cc2847287e5c9e.png"></p>
+<p>On the <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank">GeoJSON Summary Format</a> page, click &#34;All Earthquakes&#34; for the past 30 days.</p>
+<p><img alt="usgs geojson" src="img/30308e839f63828a.png"></p>
+<p>Download the <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson" target="_blank">all_month.geojson</a> file to your computer. Depending on how many earthquakes have happened in the last month, the file will be something like 8.5 megabytes.</p>
+<p>You can open up this GeoJSON file if you&#39;re curious about the GeoJSON file format.</p>
+<p>The first few lines should look something like this:</p>
+<pre><code>{
+  &#34;type&#34;: &#34;FeatureCollection&#34;,
+  &#34;metadata&#34;: {
+    &#34;generated&#34;: 1536625395000,
+    &#34;url&#34;: &#34;https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson&#34;,
+    &#34;title&#34;: &#34;USGS All Earthquakes, Past Month&#34;,
+    &#34;status&#34;: 200,
+    &#34;api&#34;: &#34;1.5.8&#34;,
+    &#34;count&#34;: 11986
+  },
+  &#34;features&#34;: [
+    {
+      &#34;type&#34;: &#34;Feature&#34;,
+      &#34;properties&#34;: {
+        &#34;mag&#34;: 0.42,
+        &#34;place&#34;: &#34;4km WNW of Anza, CA&#34;,
+        &#34;time&#34;: 1536623825450,
+        &#34;updated&#34;: 1536624040422,
+        &#34;tz&#34;: -480,
+        &#34;url&#34;: &#34;https://earthquake.usgs.gov/earthquakes/eventpage/ci38055935&#34;,
+        &#34;detail&#34;: &#34;https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci38055935.geojson&#34;,
+        &#34;felt&#34;: null,
+        &#34;cdi&#34;: null,
+        &#34;mmi&#34;: null,
+        &#34;alert&#34;: null,
+        &#34;status&#34;: &#34;automatic&#34;,
+        &#34;tsunami&#34;: 0,
+        &#34;sig&#34;: 3,
+        &#34;net&#34;: &#34;ci&#34;,
+        &#34;code&#34;: &#34;38055935&#34;,
+        &#34;ids&#34;: &#34;,ci38055935,&#34;,
+        &#34;sources&#34;: &#34;,ci,&#34;,
+        &#34;types&#34;: &#34;,geoserve,nearby-cities,origin,phase-data,scitech-link,&#34;,
+        &#34;nst&#34;: 15,
+        &#34;dmin&#34;: 0.01985,
+        &#34;rms&#34;: 0.1,
+        &#34;gap&#34;: 94,
+        &#34;magType&#34;: &#34;ml&#34;,
+        &#34;type&#34;: &#34;earthquake&#34;,
+        &#34;title&#34;: &#34;M 0.4 - 4km WNW of Anza, CA&#34;
+      },
+      &#34;geometry&#34;: {
+        &#34;type&#34;: &#34;Point&#34;,
+        &#34;coordinates&#34;: [
+          -116.7155,
+          33.5733333,
+          11.31
+        ]
+      },
+      &#34;id&#34;: &#34;ci38055935&#34;
+    },
+    ...
+    ...
+    ...
+</code></pre>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Uploading to XYZ Studio" duration="0">
-        <p>Now let&#39;s open up XYZ Studio. https://xyz.here.com/studio</p>
+        <p>Now let&#39;s open up XYZ Studio. <a href="https://xyz.here.com/studio" target="_blank">https://xyz.here.com/studio</a></p>
 <p>When you open XYZ Studio you&#39;ll see your Dashboard. There is one tab for &#34;Projects&#34; (you can think of these as &#34;maps&#34;) and another tab for &#34;Data Hub&#34; (which is where you can manage data layers to add to your maps).</p>
 <p>At first you&#39;ll see your dashboard, with the &#34;Projects&#34; tab active. If you&#39;re just getting started with Studio, you probably don&#39;t have any projects or data yet.</p>
+<p><img alt="XYZ Dashboard" src="img/3620058ccc437daa.png"></p>
 <p>Let&#39;s go to Data Hub first, by clicking on that tab. Then click the &#34;Create new dataset&#34; button.</p>
 <p><img alt="XYZ Studio Data Hub" src="img/ff166eebc7c59b0a.png"></p>
 <p>This will bring you to a list of your datasets and a &#34;Upload new dataset&#34; button. Here you can upload the GeoJSON file that you downloaded to your computer.</p>
+<p><img alt="XYZ Studio Upload Data" src="img/1245ed507b4d4651.png"></p>
 <p>Here we could create a new &#34;Project&#34; with the dataset, or we could go to the Projects tab and create one there. Let&#39;s click on the Projects tab now.</p>
-<p>Now we&#39;ll see the project&#39;s page. Let&#39;s give this project a name, something like &#34;LA Restaurants&#34;.</p>
-<p>Right now, there&#39;s no data in our map. All we have is a &#34;basemap&#34;, which is the background map that we will layer our data on top of. You have a few color options for your basemap. Feel free to pick whichever one you like.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Creating a project" duration="0">
+        <p>Now if we click on Projects, we&#39;ll see the project&#39;s page. Let&#39;s give this project a name, something like &#34;Earthquakes&#34;.</p>
+<p><img alt="XYZ Studio untitled project" src="img/5545fa6185a94917.png"></p>
+<p>Right now, there&#39;s no data in our map. All we have is a &#34;basemap&#34;, which is the background map that we will layer our data on top of. You have a few color options for your basemap. Feel free to pick whichever one you like. For example, here&#39;s a light-colored map:</p>
+<p><img alt="XYZ Studio changed basemap" src="img/2f5c9128d3fd3cbc.png"></p>
 <p>But now we need to add a layer to our map. Click the <code>+ Add</code> button, and a new window will open up, prompting you to add some data from your &#34;Data Hub&#34;. Here we can select the GeoJSON layer that we just uploaded.</p>
+<p><img alt="XYZ Studio Add Data" src="img/12dc7add4de4a140.png"></p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Style the data" duration="0">
-        <p>Now let&#39;s navigate back to our Projects and view our &#34;LA Restaurants&#34; project. Use the <code>+ Add</code> button to add a layer to the map, if you haven&#39;t already.</p>
+        <p>Now let&#39;s navigate back to our Projects and view our &#34;Earthquakes&#34; project. Use the <code>+ Add</code> button to add a layer to the map, if you haven&#39;t already.</p>
 <p>Adjust the style of the points (currently all the points have to have the same style, but we&#39;re working on attribute-based styling). You can adjust the size, color, stroke, etc.</p>
-<p>You can also customize your pop-up window (called &#34;Cards&#34;) by dragging the fields into a meaningful order, and choosing which field should be the title in the pop-up.</p>
+<p><img alt="XYZ Studio point styling" src="img/b52ad4c365e56220.png"></p>
+<p>You can also customize your pop-up window (called &#34;Cards&#34;) by dragging the fields into a meaningful order. The first field will be the title in the pop-up, and any fields below the solid line won&#39;t show up in the card at all.</p>
+<p><img alt="XYZ Studio cards" src="img/57247057ffaddbff.png"></p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Share the map" duration="0">
         <p>We&#39;re almost ready to publish our map, but first we have to set the default view. This is called a &#34;bookmark&#34; and we can make one by clicking the bookmark icon near the top.</p>
+<p><img alt="XYZ Studio bookmark" src="img/6f072c4b7fd76d3e.png"></p>
 <p>Now let&#39;s share the map! Click the &#34;Project Settings&#34; button in the lower left corner of the window. Here you can publish your Project, and get sharable links that anyone can view online or embed in a webpage.</p>
 <p><img alt="XYZ Studio Publish window" src="img/d3acd72e21fe9bb.png"></p>
-<p>The sharable URL will look something like this: https://xyz.here.com/viewer/?project_id=cbb04410-a112-11e8-a434-db0102d2f39c</p>
+<p>The sharable URL will look something like this: <a href="https://xyz.here.com/viewer/?project_id=ef9c4480-b55a-11e8-875f-e507603e6a20" target="_blank">https://xyz.here.com/viewer/?project_id=ef9c4480-b55a-11e8-875f-e507603e6a20</a></p>
 
 
       </google-codelab-step>

@@ -34,15 +34,36 @@ Go to [https://earthquake.usgs.gov/earthquakes/feed/](https://earthquake.usgs.go
 ![usgs downloads](images/tutorial-1-usgs-download.png)
 
 
-On the [GeoJSON Summary Format](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) page, click "All Earthquakes" for the past 30 days.
+On the [GeoJSON Summary Format](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) page, click "All Earthquakes" for the past 30 days. The link is at the bottom right corner of the page.
 
 ![usgs geojson](images/tutorial-1-usgs-geojson.png)
 
-Download the [all_month.geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson) file to your computer. Depending on how many earthquakes have happened in the last month, the file will be something like 8.5 megabytes.
+Download the [all_month.geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson) file to your computer. Depending on your browser and your operating system, clicking that link might be enough to start the file downloading. But if you see a bunch of random text on your screen, you might be looking at the raw GeoJSON file. If so, you may need to go to the `File > Save Page As...` menu in your browser to download this file to your computer. If you are a Safari user, you might see the option to save the page as a Web Archive. You don't want that option. Choose "Page Source" instead.
 
-You can open up this GeoJSON file if you’re curious about the GeoJSON file format.
+Also, make sure that when you've downloaded the file, the full file name is `all_month.geojson`. If your operating system adds any additional file extension to the end (such as `all_month.geojson.json` or `all_month.geojson.txt`) make sure to remove that extra file extension by renaming the file.
 
-The first few lines should look something like this:
+Depending on how many earthquakes have happened in the last month, the file size will be something around 8 megabytes.
+
+You can open up this GeoJSON file if you’re curious about the GeoJSON file format. If you're not curious, you can skip ahead to the next step.
+
+If you open the GeoJSON file, the first few lines should look something like this, which is not particularly easy to read:
+
+```
+{"type":"FeatureCollection","metadata":{"generated":1537581272000,"url":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson","title":"USGS All Earthquakes, Past Month","status":200,"api":"1.5.8","count":9850},"features":[{"type":"Feature","properties":{"mag":null,"place":"14km E of Seven Trees, CA","time":1537581188710,"updated":1537581270267,"tz":null,"url":"https://earthquake.usgs.gov/earthquakes/eventpage/nc73087921","detail":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73087921.geojson","felt":null,"cdi":null,"mmi":null,"alert":null,"status":"automatic","tsunami":0,"sig":0,"net":"nc","code":"73087921","ids":",nc73087921,","sources":",nc,","types":",nearby-cities,origin,phase-data,","nst":19,"dmin":0.04379,"rms":0.02,"gap":70,"magType":null,"type":"earthquake","title":"M ? - 14km E of Seven Trees, CA"},"geometry":{"type":"Point","coordinates":[-121.67733,37.3076668,6.59]},"id":"nc73087921"},
+{"type":"Feature","properties":{"mag":1.6,"place":"121km NW of Arctic Village, Alaska","time":1537580268294,"updated":1537580544761,"tz":-540,"url":"https://earthquake.usgs.gov/earthquakes/eventpage/ak20260406","detail":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ak20260406.geojson","felt":null,"cdi":null,"mmi":null,"alert":null,"status":"automatic","tsunami":0,"sig":39,"net":"ak","code":"20260406","ids":",ak20260406,","sources":",ak,","types":",geoserve,origin,","nst":null,"dmin":null,"rms":0.72,"gap":null,"magType":"ml","type":"earthquake","title":"M 1.6 - 121km NW of Arctic Village, Alaska"},"geometry":{"type":"Point","coordinates":[-147.7682,68.8514,0]},"id":"ak20260406"},
+{"type":"Feature","properties":{"mag":0.41,"place":"10km NE of Aguanga, CA","time":1537578694200,"updated":1537578914440,"tz":-480,"url":"https://earthquake.usgs.gov/earthquakes/eventpage/ci37363842","detail":"https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci37363842.geojson","felt":null,"cdi":null,"mmi":null,"alert":null,"status":"automatic","tsunami":0,"sig":3,"net":"ci","code":"37363842","ids":",ci37363842,","sources":",ci,","types":",geoserve,nearby-cities,origin,phase-data,scitech-link,","nst":15,"dmin":0.0803,"rms":0.17,"gap":118,"magType":"ml","type":"earthquake","title":"M 0.4 - 10km NE of Aguanga, CA"},"geometry":{"type":"Point","coordinates":[-116.7776667,33.4923333,4.33]},"id":"ci37363842"},
+    ...
+    ...
+    ...
+
+```
+
+If we want to see the structure more clearly, we can add some linebreaks, shown below.
+
+Positive
+: NOTE: linebreaks are completely optional! Computers don't care if their GeoJSON files have linebreaks or not. We're adding them here just to make the file more human-readable.
+
+Now you can see how the GeoJSON features are structured, where each feature has a set of `properties` and also a `geometry`. If you are curious to learn more about GeoJSON, the [Wikipedia article](https://en.wikipedia.org/wiki/GeoJSON) is quite informative.
 
 ```
 {

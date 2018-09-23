@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#4F7DC9">
   <meta charset="UTF-8">
   <title>Make a map with Leaflet and the XYZ API</title>
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../elements/codelab.html">
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
   <style is="custom-style">
     body {
@@ -76,15 +76,17 @@
       <google-codelab-step label="Upload data to XYZ using the command line" duration="0">
         <p>One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn&#39;t let us add tags, so we will use another approach here.</p>
 <p>Specifically, we need to download and install the command line tool.</p>
-<aside class="warning"><p>Note: during the XYZ beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you&#39;re using Windows, OSX, or Linux.</p>
+<aside class="warning"><p>Note: during the XYZ private beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you&#39;re using Windows, OSX, or Linux. Once XYZ has launched in public beta, we will update the instructions here.</p>
 </aside>
-<p>Once you have the command line tool installed, you&#39;ll need to run <code>here configure</code> to set up your credentials. Specifically, you&#39;ll need your <strong>AppID</strong> and <strong>AppCode</strong>.</p>
-<p>Now try <code>here xyz list</code> to see any spaces you have set up already. You might not have any. Or if you do, you can try <code>here xyz describe [SpaceID]</code> to get some details about one of them.</p>
+<p>Once you have the command line tool installed, you&#39;ll need to run <code>here configure set</code> to set up your credentials. Specifically, you&#39;ll need your <strong>App ID</strong> and <strong>App Code</strong>.</p>
 <p>Now we&#39;re going to upload the air quality data using the command-line to add the appropriate tags. Before we upload any data, we need to create an empty XYZ space. Here&#39;s how we do that, adding a name and description:</p>
 <p><code>here xyz create --title &#34;urban-air&#34; --message &#34;urban air quality data uploaded from the command line&#34;</code></p>
 <p>You&#39;ll see the response:<br><code>xyzspace &#39;[SpaceID]&#39; created successfully</code></p>
 <p>Instead of &#34;[SpaceID]&#34;, you&#39;ll see an eight-character string of numbers and letters. This is your SpaceID.</p>
-<p>Take note of that ID. We&#39;ll need to use that for pretty much everything else we do. Now we can upload some data. There are a few different flags you can include when uploading data, but the one we&#39;re most interested in right now is <code>-p</code> (or <code>--ptag</code> does the same thing). The <code>-p</code> flag lets us specify some properties in our GeoJSON file that we&#39;d like to convert into XYZ tags. Since we want to be able query the data based on the time, we will tag every datapoint with it&#39;s hourly timestamp. The here CLI tool makes this easy with the property tag command:</p>
+<p>Take note of that ID. We&#39;ll need to use that for pretty much everything else we do.</p>
+<p>Now try <code>here xyz list</code> to list all your XYZ spaces. You should see the one you just created, and any other spaces you have set up already.</p>
+<p>You can also try <code>here xyz describe [SpaceID]</code> to get some details about any of your spaces.</p>
+<p>Now we can upload some data. There are a few different flags you can include when uploading data, but the one we&#39;re most interested in right now is <code>-p</code> (or <code>--ptag</code> does the same thing). The <code>-p</code> flag lets us specify some properties in our GeoJSON file that we&#39;d like to convert into XYZ tags. Since we want to be able query the data based on the time, we will tag every datapoint with it&#39;s hourly timestamp. The here CLI tool makes this easy with the property tag command:</p>
 <pre><code>here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]
 </code></pre>
 <p>The <code>-p</code> or <code>--ptag</code> will create tags from the GeoJSON properties.</p>

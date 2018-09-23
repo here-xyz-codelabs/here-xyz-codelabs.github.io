@@ -77,11 +77,9 @@ One of the most powerful features of XYZ is the ability to use tags to select fe
 Specifically, we need to download and install the command line tool.
 
 Negative
-: Note: during the XYZ beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you're using Windows, OSX, or Linux. 
+: Note: during the XYZ private beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you're using Windows, OSX, or Linux. Once XYZ has launched in public beta, we will update the instructions here.
 
-Once you have the command line tool installed, you’ll need to run `here configure` to set up your credentials. Specifically, you’ll need your **AppID** and **AppCode**.
-
-Now try `here xyz list` to see any spaces you have set up already. You might not have any. Or if you do, you can try `here xyz describe [SpaceID]` to get some details about one of them.
+Once you have the command line tool installed, you’ll need to run `here configure set` to set up your credentials. Specifically, you’ll need your **App ID** and **App Code**.
 
 Now we’re going to upload the air quality data using the command-line to add the appropriate tags. Before we upload any data, we need to create an empty XYZ space. Here’s how we do that, adding a name and description:
 
@@ -92,7 +90,13 @@ You’ll see the response:
 
 Instead of "[SpaceID]", you'll see an eight-character string of numbers and letters. This is your SpaceID.
 
-Take note of that ID. We’ll need to use that for pretty much everything else we do. Now we can upload some data. There are a few different flags you can include when uploading data, but the one we’re most interested in right now is `-p` (or `--ptag` does the same thing). The `-p` flag lets us specify some properties in our GeoJSON file that we’d like to convert into XYZ tags. Since we want to be able query the data based on the time, we will tag every datapoint with it’s hourly timestamp. The here CLI tool makes this easy with the property tag command:
+Take note of that ID. We’ll need to use that for pretty much everything else we do.
+
+Now try `here xyz list` to list all your XYZ spaces. You should see the one you just created, and any other spaces you have set up already.
+
+You can also try `here xyz describe [SpaceID]` to get some details about any of your spaces.
+
+Now we can upload some data. There are a few different flags you can include when uploading data, but the one we’re most interested in right now is `-p` (or `--ptag` does the same thing). The `-p` flag lets us specify some properties in our GeoJSON file that we’d like to convert into XYZ tags. Since we want to be able query the data based on the time, we will tag every datapoint with it’s hourly timestamp. The here CLI tool makes this easy with the property tag command:
 
 ```
 here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]

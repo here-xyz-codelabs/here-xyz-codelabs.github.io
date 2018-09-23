@@ -44,6 +44,8 @@ Also, make sure that when you've downloaded the file, the full file name is `all
 
 Depending on how many earthquakes have happened in the last month, the file size will be something around 8 megabytes.
 
+![downloaded file](images/tutorial-1-downloaded-file.png)
+
 You can open up this GeoJSON file if you’re curious about the GeoJSON file format. If you're not curious, you can skip ahead to the next step.
 
 If you open the GeoJSON file, the first few lines should look something like this, which is not particularly easy to read:
@@ -144,7 +146,9 @@ Here we could create a new "Project" with the dataset, or we could go to the Pro
 
 ## Creating a project
 
-Now if we click on Projects, we’ll see the project’s page. Let’s give this project a name, something like “Earthquakes”.
+Now let's click on the Projects tab. Click "Create new project".
+
+Now we see the project’s page. Let’s give this project a name, something like “Earthquakes”.
 
 ![XYZ Studio untitled project](images/tutorial-1-untitled-project.png)
 

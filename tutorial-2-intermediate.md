@@ -153,7 +153,7 @@ Try changing the date to get different data.
 
 Next, we will view some of this data in Leaflet. Leaflet is a simple mapping library that can draw simple points, lines, and polygons on top of a raster basemap.
 
-Here is a [basic Leaflet template](https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html) which gives us a raster “slippy” map, with nothing on it. To view this code in your browser, you can quickly run a webserver using `python -m SimpleHTTPServer`. Or you could upload it to your own personal webpage, or use something like blockbuilder.org to view this simple page. 
+Here is a [basic Leaflet template](https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html) which gives us a raster “slippy” map, with nothing on it. To view this code in your browser, you can quickly run a webserver using `python -m SimpleHTTPServer`. Or you could upload it to your own personal webpage, or use something like [S3](https://aws.amazon.com/s3/) or blockbuilder.org to view this simple page.
 
 Positive
 : Note: This code snippet includes a bunch of CSS that we will use later. We won't explain most of it in this tutorial. If you're curious about CSS, there are tons of resources online to learn more.
@@ -307,7 +307,7 @@ Positive
 </html>
 ```
 
-Admire your slippy map! It should look like [this](https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index-step1.html):
+Admire your map! It should look like [this](https://stamen.github.io/here-xyz-demo/urban-air-leaflet/index-step1.html):
 
 ![XYZ Leaflet map](images/tutorial-2-leaflet.png)
 

@@ -29,6 +29,7 @@ In this demo we'll download some air quality readings for the city of Madrid and
 
 
 ## Getting the data
+Duration: 5:00
 
 In this demo we’ll load up a large dataset into the xyz platform and query small slices of that data for rendering on a map. We’ll use the Madrid Air Quality dataset, graciously organized by kaggle here:
 
@@ -44,6 +45,7 @@ Positive
 Click the `Download` button to get the zip file containing the data.
 
 ## Preprocessing the data
+Duration: 10:00
 
 After unzipping the dataset, you’ll see a `stations.csv` that looks like:
 
@@ -71,6 +73,7 @@ After the merge, you should see the merged table in `out.csv`
 
 
 ## Upload data to XYZ using the command line
+Duration: 5:00
 
 One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn’t let us add tags, so we will use another approach here.
 
@@ -130,6 +133,7 @@ In the data editor, you should see that the properties object of each feature, t
 In this case the timestamp of the measurement has been turned into a tag.
 
 ## Reading slices of data
+Duration: 5:00
 
 The xyz api provides the ability filter a dataset by tag. To try this out, use the geojson viewing tool and change the data provider url
 
@@ -150,6 +154,7 @@ You should see that the previewer re-renders with only data that matches `data =
 Try changing the date to get different data.
 
 ## View the data in a Leaflet map
+Duration: 5:00
 
 Next, we will view some of this data in Leaflet. Leaflet is a simple mapping library that can draw simple points, lines, and polygons on top of a raster basemap.
 
@@ -314,6 +319,7 @@ Admire your map! It should look like [this](https://stamen.github.io/here-xyz-de
 Now it’s time to get some data on it!
 
 ## Load the data onto your map
+Duration: 10:00
 
 
 We will load a GeoJSON layer from our XYZ space like so: `https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&tags=2001-08-01t01:00:00`
@@ -404,6 +410,7 @@ Now your map should look something like [this](https://stamen.github.io/here-xyz
 Next we will add some interactivity...
 
 ## Add some controls to select different air quality indicators
+Duration: 5:00
 
 Each record returned by our XYZ query includes several different air quality measurements. Let's add some simple selection buttons so our user can view the different values in our data.
 
@@ -450,6 +457,7 @@ Try clicking on the different buttons to see the circles change size!
 
 
 ## Add controls to illustrate querying XYZ by tag
+Duration: 10:00
 
 This interactivity is pretty cool, but we're only viewing different aspects of the data that we've already downloaded. Now let's let the user select data for a different date, which will trigger a new XYZ query and use our XYZ tags to download the correct data.
 
@@ -490,6 +498,7 @@ Click on the date to open up the calendar interface, and try choosing different 
 
 
 ## Add a play button
+Duration: 5:00
 
 The date picker is pretty powerful, because it lets us select any date we choose. However, it's a bit inconvenient if we simply want to watch how the data changes over time. For our final enhancement, let's add a play button.
 

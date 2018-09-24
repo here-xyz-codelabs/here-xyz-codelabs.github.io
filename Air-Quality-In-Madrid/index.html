@@ -44,7 +44,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Getting the data" duration="0">
+      <google-codelab-step label="Getting the data" duration="5">
         <p>In this demo we&#39;ll load up a large dataset into the xyz platform and query small slices of that data for rendering on a map. We&#39;ll use the Madrid Air Quality dataset, graciously organized by kaggle here:</p>
 <p><a href="https://www.kaggle.com/decide-soluciones/air-quality-madrid/home" target="_blank">https://www.kaggle.com/decide-soluciones/air-quality-madrid/home</a></p>
 <p><img alt="Kaggle" src="img/f112d68efc6b4d5f.png"></p>
@@ -56,7 +56,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Preprocessing the data" duration="0">
+      <google-codelab-step label="Preprocessing the data" duration="10">
         <p>After unzipping the dataset, you&#39;ll see a <code>stations.csv</code> that looks like:</p>
 <p><img alt="CSV 1" src="img/1ae800edc4584e28.png"></p>
 <p>in the <code>csvs_per_year</code> folder, there is one file per year. we&#39;ll use just 2001 <code>madrid_2001.csv</code></p>
@@ -73,7 +73,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Upload data to XYZ using the command line" duration="0">
+      <google-codelab-step label="Upload data to XYZ using the command line" duration="5">
         <p>One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn&#39;t let us add tags, so we will use another approach here.</p>
 <p>Specifically, we need to download and install the command line tool.</p>
 <aside class="warning"><p>Note: during the XYZ private beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you&#39;re using Windows, OSX, or Linux. Once XYZ has launched in public beta, we will update the instructions here.</p>
@@ -110,7 +110,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Reading slices of data" duration="0">
+      <google-codelab-step label="Reading slices of data" duration="5">
         <p>The xyz api provides the ability filter a dataset by tag. To try this out, use the geojson viewing tool and change the data provider url</p>
 <p>from</p>
 <pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&amp;access_token=[AccessToken]
@@ -124,7 +124,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="View the data in a Leaflet map" duration="0">
+      <google-codelab-step label="View the data in a Leaflet map" duration="5">
         <p>Next, we will view some of this data in Leaflet. Leaflet is a simple mapping library that can draw simple points, lines, and polygons on top of a raster basemap.</p>
 <p>Here is a <a href="https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html" target="_blank">basic Leaflet template</a> which gives us a raster &#34;slippy&#34; map, with nothing on it. To view this code in your browser, you can quickly run a webserver using <code>python -m SimpleHTTPServer</code>. Or you could upload it to your own personal webpage, or use something like <a href="https://aws.amazon.com/s3/" target="_blank">S3</a> or blockbuilder.org to view this simple page.</p>
 <aside class="special"><p>Note: This code snippet includes a bunch of CSS that we will use later. We won&#39;t explain most of it in this tutorial. If you&#39;re curious about CSS, there are tons of resources online to learn more.</p>
@@ -283,7 +283,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Load the data onto your map" duration="0">
+      <google-codelab-step label="Load the data onto your map" duration="10">
         <p>We will load a GeoJSON layer from our XYZ space like so: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=2001-08-01t01:00:00</code></p>
 <p>Note that we have to include a date tag filter, or else we will see hundreds of points stacked on top of each other at each air quality station.</p>
 <p>So let&#39;s extend our code to load that data and to draw some circles on our map.</p>
@@ -358,7 +358,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add some controls to select different air quality indicators" duration="0">
+      <google-codelab-step label="Add some controls to select different air quality indicators" duration="5">
         <p>Each record returned by our XYZ query includes several different air quality measurements. Let&#39;s add some simple selection buttons so our user can view the different values in our data.</p>
 <p>First add a new HTML element after the line <code>&lt;h2&gt;Madrid Urban Air Quality&lt;/h2&gt;</code></p>
 <pre><code>       &lt;div id=&#34;property-list&#34;&gt;&lt;/div&gt;
@@ -392,7 +392,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add controls to illustrate querying XYZ by tag" duration="0">
+      <google-codelab-step label="Add controls to illustrate querying XYZ by tag" duration="10">
         <p>This interactivity is pretty cool, but we&#39;re only viewing different aspects of the data that we&#39;ve already downloaded. Now let&#39;s let the user select data for a different date, which will trigger a new XYZ query and use our XYZ tags to download the correct data.</p>
 <p>We&#39;re going to use the <a href="https://flatpickr.js.org/" target="_blank">flatpickr</a> library, which we already included in the header of our html page. Now, after the line <code>&lt;h2&gt;Madrid Urban Air Quality&lt;/h2&gt;</code>, let&#39;s add an input for our date picker control:</p>
 <pre><code>&lt;input id=&#34;datepicker&#34; class=&#34;flatpickr flatpickr-input&#34; type=&#34;text&#34; placeholder=&#34;Select Date...&#34; readonly=&#34;readonly&#34;&gt;
@@ -420,7 +420,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add a play button" duration="0">
+      <google-codelab-step label="Add a play button" duration="5">
         <p>The date picker is pretty powerful, because it lets us select any date we choose. However, it&#39;s a bit inconvenient if we simply want to watch how the data changes over time. For our final enhancement, let&#39;s add a play button.</p>
 <p>After the datepicker <code>&lt;input&gt;</code> element, add these lines:</p>
 <pre><code>        &lt;div id=&#34;playback&#34;&gt;

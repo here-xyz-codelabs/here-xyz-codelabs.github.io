@@ -26,6 +26,7 @@ In this demo we'll use live updated flight tracker data to draw the real-time po
 ![planes](images/tutorial-4-planes.png)
 
 ## Create a script to refresh to data in XYZ
+Duration: 15:00
 
 Let’s try out more of the features of the XYZ API, such as adding and deleting features. Here we're going to write a simple [node.js](https://nodejs.org/) script that queries the flights API every minute, and uploads the new points to our XYZ space.
 
@@ -178,6 +179,7 @@ setInterval(function() {
 We also don’t want our database to fill up over time, so we also need to add an API request that deletes old locations.
 
 ## View the points in three.js
+Duration: 10:00
 
 If we want to see the points on a 3D map, we can’t use Leaflet or Tangram. So let’s try another frontend library, called three.js.
 
@@ -428,6 +430,7 @@ At this point our code looks like [this](https://github.com/stamen/here-xyz-demo
 And here's a demo of the [globe without any planes](https://stamen.github.io/here-xyz-demo/flights-threejs/index-step1.html).
 
 ## Add the planes to our globe
+Duration: 10:00
 
 ![planes](images/tutorial-4-planes.png)
 
@@ -561,6 +564,7 @@ At this point our code looks like [this](https://github.com/stamen/here-xyz-demo
 And here's a demo of our [globe with some planes on it](https://stamen.github.io/here-xyz-demo/flights-threejs/index-step2.html)!
 
 ## Add airport picker
+Duration: 10:00
 
 ![airports](images/tutorial-4-airports.png)
 
@@ -711,6 +715,7 @@ And here's a demo of our [globe with an airport picker](https://stamen.github.io
 
 
 ## Add mouseovers
+Duration: 10:00
 
 ![mouseover](images/tutorial-4-mouseover.png)
 
@@ -759,6 +764,7 @@ And here's a demo of our [globe with aircraft mouseovers](https://stamen.github.
 
 
 ## Add aircraft trails
+Duration: 10:00
 
 ![mouseover](images/tutorial-4-trails.png)
 

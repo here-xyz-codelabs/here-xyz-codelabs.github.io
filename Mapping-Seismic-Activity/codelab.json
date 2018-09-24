@@ -4,9 +4,9 @@
   "format": "html",
   "prefix": "../../",
   "mainga": "UA-49880327-14",
-  "updated": "2018-09-23T16:44:01-07:00",
-  "id": "1",
-  "duration": 0,
+  "updated": "2018-09-23T22:46:23-07:00",
+  "id": "Mapping-Seismic-Activity",
+  "duration": 20,
   "title": "Make a map in XYZ Studio",
   "author": "Stamen Design",
   "summary": "Make a map in XYZ Studio",
@@ -22,5 +22,5 @@
   ],
   "feedback": "https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues",
   "ga": "0",
-  "url": "1"
+  "url": "Mapping-Seismic-Activity"
 }

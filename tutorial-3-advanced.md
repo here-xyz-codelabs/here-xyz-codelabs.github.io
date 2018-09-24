@@ -28,6 +28,7 @@ In this demo we'll download several public datasets for the city of Amsterdam an
 ![Finished Amsterdam solar panels and tree map](images/tutorial-3-final.png)
 
 ## Get the data
+Duration: 10:00
 
 In this demo, we'll use open data provided by the City of Amsterdam. We'll look at two sources of data: solar panel installations, and street trees.
 
@@ -47,6 +48,7 @@ To make the solar panel data more interpretable, let's try aggregating solar ins
 ![Neighborhood boundaries](images/tutorial-3-neighborhood-data.png)
 
 ## Preprocessing
+Duration: 10:00
 
 We’ll write a node script to find the total solar power generated in each neighborhood and save it to a new GeoJSON file, using [turf](http://turfjs.org/).
 
@@ -88,6 +90,7 @@ here xyz upload -f heatmap.json [SpaceID]
 ![heatmap upload](images/tutorial-3-heatmap-upload.png)
 
 ## View the tiled data in Tangram
+Duration: 10:00
 
 If we want to see more datasets, Leaflet can’t handle that many points. The XYZ API supports _tiling_ vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We'll use [Tangram](https://github.com/tangrams/tangram), an open-source WebGL based map viewer.
 
@@ -137,6 +140,7 @@ Here's our [basic map](https://stamen.github.io/here-xyz-demo/solar-tangram/inde
 ![Basic map screenshot](images/tutorial-3-basic.png) 
 
 ## Style the data
+Duration: 10:00
 
 Tangram rendering
 
@@ -244,6 +248,7 @@ Here we use the Tangram `order` property so that the neighborhood boundaries sho
 ![Map with all layers styled](images/tutorial-3-step1.png)
 
 ## Filter the data using a bounding box query
+Duration: 10:00
 
 It could still use a little more interactivity though.
 
@@ -264,6 +269,7 @@ fetch(url).then((response) => response.json()).then(function(data) {
 ```
 
 ## Putting it all together
+Duration: 5:00
 
 Finally, we'll add some user interface controls for turning layers off and on. 
 

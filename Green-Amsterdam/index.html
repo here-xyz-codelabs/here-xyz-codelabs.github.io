@@ -44,7 +44,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Get the data" duration="0">
+      <google-codelab-step label="Get the data" duration="10">
         <p>In this demo, we&#39;ll use open data provided by the City of Amsterdam. We&#39;ll look at two sources of data: solar panel installations, and street trees.</p>
 <p>The solar data is available <a href="https://maps.amsterdam.nl/open_geodata/geojson.php?KAARTLAAG=ZONNEPANELEN2017&THEMA=zonnepanelen" target="_blank">to download</a>, but the default visualization of the data is not particularly informative.</p>
 <p><img alt="Solar data" src="img/32522d6cad32930c.png"></p>
@@ -58,7 +58,7 @@ here xyz upload -f BOMEN.json [SpaceID]
 
       </google-codelab-step>
     
-      <google-codelab-step label="Preprocessing" duration="0">
+      <google-codelab-step label="Preprocessing" duration="10">
         <p>We&#39;ll write a node script to find the total solar power generated in each neighborhood and save it to a new GeoJSON file, using <a href="http://turfjs.org/" target="_blank">turf</a>.</p>
 <pre><code>    const fs = require(&#39;fs&#39;);
     const turf = require(&#39;@turf/turf&#39;);
@@ -95,7 +95,7 @@ here xyz upload -f BOMEN.json [SpaceID]
 
       </google-codelab-step>
     
-      <google-codelab-step label="View the tiled data in Tangram" duration="0">
+      <google-codelab-step label="View the tiled data in Tangram" duration="10">
         <p>If we want to see more datasets, Leaflet can&#39;t handle that many points. The XYZ API supports <em>tiling</em> vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We&#39;ll use <a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a>, an open-source WebGL based map viewer.</p>
 <p>First, we&#39;ll create a boilerplate Tangram map, just like we did with Leaflet. In this case, we&#39;ll need another file in addition to <code>index.html</code>: we&#39;ll need a <code>scene.yaml</code> file that defines the stylesheet and data sources for the map.</p>
 <p>Now, to load our XYZ data on top of this Tangram map, we&#39;ll need to add a <code>source</code> to our scene file for each dataset. The tiled endpoint has this format: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}</code>.</p>
@@ -137,7 +137,7 @@ here xyz upload -f BOMEN.json [SpaceID]
 
       </google-codelab-step>
     
-      <google-codelab-step label="Style the data" duration="0">
+      <google-codelab-step label="Style the data" duration="10">
         <p>Tangram rendering</p>
 <ol type="1">
 <li>Render the solar panels as circles of varying width and color.</li>
@@ -239,7 +239,7 @@ here xyz upload -f BOMEN.json [SpaceID]
 
       </google-codelab-step>
     
-      <google-codelab-step label="Filter the data using a bounding box query" duration="0">
+      <google-codelab-step label="Filter the data using a bounding box query" duration="10">
         <p>It could still use a little more interactivity though.</p>
 <p>Let&#39;s give the user the ability to draw a rectangle on the screen, and then use this as a bounding box query to the XYZ API. We&#39;re going to use a Leaflet extension called <a href="https://github.com/heyman/leaflet-areaselect/" target="_blank">Leaflet-AreaSelect</a>, which provides a nice user interface for drawing a bounding box. Then we trigger a query to the XYZ API&#39;s <code>bbox</code> endpoint:</p>
 <p><code>&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/bbox?access_token=[AccessToken]&amp;west=&#39; + west + &#39;&amp;south=&#39; + south + &#39;&amp;east=&#39; + east + &#39;&amp;north=&#39; + north;</code></p>
@@ -256,7 +256,7 @@ fetch(url).then((response) =&gt; response.json()).then(function(data) {
 
       </google-codelab-step>
     
-      <google-codelab-step label="Putting it all together" duration="0">
+      <google-codelab-step label="Putting it all together" duration="5">
         <p>Finally, we&#39;ll add some user interface controls for turning layers off and on.</p>
 <pre><code>&lt;div id=&#34;controls&#34;&gt;
     &lt;div id=&#34;solar&#34; class=&#34;on&#34; onclick=&#34;toggle(&#39;solar&#39;)&#34;&gt;Solar installations&lt;/div&gt;

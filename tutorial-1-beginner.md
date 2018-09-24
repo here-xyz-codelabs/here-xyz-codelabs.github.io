@@ -28,6 +28,7 @@ In this demo we’ll download a public GeoJSON file of earthquake locations from
 
 
 ## Downloading the data
+Duration: 5:00
 
 Go to [https://earthquake.usgs.gov/earthquakes/feed/](https://earthquake.usgs.gov/earthquakes/feed/) and scroll down to "GeoJSON Summary Feed". Click on that link.
 
@@ -125,6 +126,7 @@ Now you can see how the GeoJSON features are structured, where each feature has 
 ```
 
 ## Uploading to XYZ Studio
+Duration: 2:00
 
 Now let’s open up XYZ Studio. [https://xyz.here.com/studio](https://xyz.here.com/studio)
 
@@ -145,6 +147,7 @@ This will bring you to a list of your datasets and a “Upload new dataset” bu
 Here we could create a new "Project" with the dataset, or we could go to the Projects tab and create one there. Let's click on the Projects tab now.
 
 ## Creating a project
+Duration: 3:00
 
 Now let's click on the Projects tab. Click "Create new project".
 
@@ -161,6 +164,7 @@ But now we need to add a layer to our map. Click the `+ Add` button, and a new w
 ![XYZ Studio Add Data](images/tutorial-1-add-data.png)
 
 ## Style the data
+Duration: 5:00
 
 Now let’s navigate back to our Projects and view our “Earthquakes” project. Use the `+ Add` button to add a layer to the map, if you haven’t already.
 
@@ -173,6 +177,8 @@ You can also customize your pop-up window (called “Cards”) by dragging the f
 ![XYZ Studio cards](images/tutorial-1-cards.png)
 
 ## Share the map
+Duration: 5:00
+
 We’re almost ready to publish our map, but first we have to set the default view. This is called a “bookmark” and we can make one by clicking the bookmark icon near the top.
 
 ![XYZ Studio bookmark](images/tutorial-1-bookmark.png)

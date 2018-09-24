@@ -42,7 +42,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="Create a script to refresh to data in XYZ" duration="0">
+      <google-codelab-step label="Create a script to refresh to data in XYZ" duration="15">
         <p>Let&#39;s try out more of the features of the XYZ API, such as adding and deleting features. Here we&#39;re going to write a simple <a href="https://nodejs.org/" target="_blank">node.js</a> script that queries the flights API every minute, and uploads the new points to our XYZ space.</p>
 <p>Create a file called <code>upload.js</code> with your favorite text editor. Now we&#39;ll add a few lines to load some necessary libraries:</p>
 <pre><code>var async = require(&#39;async&#39;)
@@ -173,7 +173,7 @@ setInterval(function() {
 
       </google-codelab-step>
     
-      <google-codelab-step label="View the points in three.js" duration="0">
+      <google-codelab-step label="View the points in three.js" duration="10">
         <p>If we want to see the points on a 3D map, we can&#39;t use Leaflet or Tangram. So let&#39;s try another frontend library, called three.js.</p>
 <p>Here is a premade spinny globe in three.js.</p>
 <p><img alt="globe" src="img/57e6fdab9a287577.png"></p>
@@ -410,7 +410,7 @@ h2 {
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add the planes to our globe" duration="0">
+      <google-codelab-step label="Add the planes to our globe" duration="10">
         <p><img alt="planes" src="img/19e61b75b7aa62e7.png"></p>
 <p>Next we need to add an API query to get the latest plane locations.</p>
 <p>At the end of your script, add this code (after the <code>addLights()</code> function).</p>
@@ -534,7 +534,7 @@ var planeObjs = [];
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add airport picker" duration="0">
+      <google-codelab-step label="Add airport picker" duration="10">
         <p><img alt="airports" src="img/b961ccde75ba5022.png"></p>
 <p>Next let&#39;s add some buttons so the user can choose different airports and trigger a new XYZ query to get updated data.</p>
 <p>First, we create a data structure of all our airports. Add this at the beginning of your <code>&lt;script&gt;</code> before the line <code>var runAnim = true;</code>:</p>
@@ -663,7 +663,7 @@ var planeObjs = [];
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add mouseovers" duration="0">
+      <google-codelab-step label="Add mouseovers" duration="10">
         <p><img alt="mouseover" src="img/bef8057eb12d8fb.png"></p>
 <p>But what if we want to find out more information about one of these aircraft? Let&#39;s add some mouseover interactivity.</p>
 <p>First, within our addPlanes() function, we need to pull more information from the GeoJSON data and add it to each plane object so we can use it in the mouseover. After the <code>point.rotation.z = trakToRad(plane.properties.Trak);</code> line, add this code:</p>
@@ -703,7 +703,7 @@ var planeObjs = [];
 
       </google-codelab-step>
     
-      <google-codelab-step label="Add aircraft trails" duration="0">
+      <google-codelab-step label="Add aircraft trails" duration="10">
         <p><img alt="mouseover" src="img/f6ff19736b8808cb.png"></p>
 <p>In order to show the trails, we will style them with a smaller icon if they&#39;re not the most recent point for each plane.</p>
 <p>After our <code>addPlanes()</code> function, add this code:</p>

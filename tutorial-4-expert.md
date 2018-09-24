@@ -25,10 +25,16 @@ In this demo we'll use live updated flight tracker data to draw the real-time po
 
 ![planes](images/tutorial-4-planes.png)
 
-## Create a script to refresh to data in XYZ
+## Create a script to refresh data in XYZ
 Duration: 15:00
 
-Let’s try out more of the features of the XYZ API, such as adding and deleting features. Here we're going to write a simple [node.js](https://nodejs.org/) script that queries the flights API every minute, and uploads the new points to our XYZ space.
+So far we've only used the API to query data. Let’s try out more of the features of the XYZ API, such as adding and deleting data. Here we're going to write a simple [node.js](https://nodejs.org/) script that queries the flights API every minute, and uploads the new points to our XYZ space.
+
+First, create a new space:
+
+```
+here xyz create --title "aircraft-locations" --message "real-time aircraft locations updated via the XYZ API"
+```
 
 Create a file called `upload.js` with your favorite text editor. Now we'll add a few lines to load some necessary libraries:
 
@@ -39,7 +45,7 @@ var fs = require('fs')
 var _ = require('underscore')
 ```
 
-Then add a config object with your space ID:
+Then add a config object with your space ID that you created above, along with your Access Token:
 
 ```
 /* ===========================================================================*/
@@ -74,7 +80,7 @@ function queryData() {
 }
 ```
 
-Now we'll write the a function that will be called for each airport. Because the ADSB Exchange API returns a JSON object that isn't in GeoJSON format, we need to rewrite the results as proper GeoJSON:
+Now we'll write the function that will be called for each airport. Because the ADSB Exchange API returns a JSON object that isn't in GeoJSON format, we need to rewrite the results as proper GeoJSON:
 
 ```
 function queryAirport(airport) {
@@ -163,20 +169,74 @@ function addDataToSpace(geojson) {
 }
 ```
 
-And then finally at the end of our script, we'll call the `queryData()` function once when the script loads, and then start a timer that will call it again every minute, as long as the script keeps running.
+We also don’t want our database to fill up over time, so we also need to add an API request that deletes old locations.
 
 ```
+function deleteOldData() {
+  var currentTime = new Date();
+  var currentHour = currentTime.getHours();
+  var previousHour = (currentHour == 0) ? 23 : (currentHour - 1);
+  console.log('deleting old data! ' + currentTime)
+
+  for(var i = 0; i < 24; i++) {
+
+    // Delete all hours of data, except for the current hour and previous hour
+    if (i != currentHour && i != previousHour) {
+
+      var options = {
+        method: 'DELETE',
+        url: 'https://xyz.api.here.com/hub/spaces/' + config.spaceId + '/features?tags=hour-' + i,
+        headers:
+         {
+           'Authorization': 'Bearer ' + config.token,
+           'Content-Type': 'application/geo+json'
+         }
+      }
+      request(options, function(error, response, body) {
+        if (error) {
+          console.log(error)
+        }
+      })
+    }
+  }
+}
+```
+
+And then finally at the end of our script, we'll call the `deleteOldData()` function followed by the `queryData()` function once when the script loads, and then start a timer that will call those two functions again every minute, as long as the script keeps running.
+
+```
+deleteOldData();
 queryData();
 
 setInterval(function() {
+  deleteOldData();
   queryData()
 }, 60000) // 60 seconds, aka 1 minute(s)
 ```
 
+Now our script finished and ready to run. It should look like [this](https://github.com/stamen/here-xyz-demo/blob/master/flights-script/script.js).
 
+But before we run it, we need to install those node.js dependencies that we load at the top of the script. To download these dependencies, we need `npm`, the [Node Package Manager](https://www.npmjs.com/).
 
+Run these lines in your terminal to install the dependencies:
 
-We also don’t want our database to fill up over time, so we also need to add an API request that deletes old locations.
+```
+npm install async
+npm install fs
+npm install request
+npm install underscore
+```
+
+If those packages all installed without error, then you should be able to run your script like so:
+
+`node upload.js`
+
+Since this is a script that just keeps running forever, you might want to run it in the background. On OSX or any UNIX-based system, you can do that like so:
+
+`node upload.js &`
+
+The script will keep running in the background as long as your terminal window is open.
+
 
 ## View the points in three.js
 Duration: 10:00

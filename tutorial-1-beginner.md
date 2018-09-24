@@ -1,6 +1,6 @@
 author: Stamen Design
 summary: Make a map in XYZ Studio
-id: 1
+id: Mapping-Seismic-Activity
 categories: map
 environments: js
 status: draft

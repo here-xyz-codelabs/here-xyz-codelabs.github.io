@@ -1,11 +1,11 @@
 {
   "environment": "web",
-  "source": "codelabs/tutorial-4-expert.md",
+  "source": "tutorial-4-expert.md",
   "format": "html",
-  "prefix": "../",
+  "prefix": "../../",
   "mainga": "UA-49880327-14",
-  "updated": "2018-09-10T01:09:42-07:00",
-  "id": "4",
+  "updated": "2018-09-23T22:18:04-07:00",
+  "id": "Global-Flight-Tracker",
   "duration": 0,
   "title": "Make a live-updating map with three.js and the XYZ API",
   "author": "Stamen Design",
@@ -22,5 +22,5 @@
   ],
   "feedback": "https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues",
   "ga": "0",
-  "url": "4"
+  "url": "Global-Flight-Tracker"
 }

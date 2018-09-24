@@ -1,15 +1,15 @@
 {
   "environment": "web",
-  "source": "codelabs/tutorial-2-intermediate.md",
+  "source": "tutorial-3-advanced.md",
   "format": "html",
-  "prefix": "../",
+  "prefix": "../../",
   "mainga": "UA-49880327-14",
-  "updated": "2018-09-10T01:21:40-07:00",
-  "id": "2",
+  "updated": "2018-09-10T01:31:02-07:00",
+  "id": "3",
   "duration": 0,
-  "title": "Make a map with Leaflet and the XYZ API",
+  "title": "Make a map with Tangram and the XYZ API",
   "author": "Stamen Design",
-  "summary": "Make a map with Leaflet and the XYZ API",
+  "summary": "Make a map with Tangram and the XYZ API",
   "theme": "",
   "status": [
     "draft"
@@ -22,5 +22,5 @@
   ],
   "feedback": "https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues",
   "ga": "0",
-  "url": "2"
+  "url": "3"
 }

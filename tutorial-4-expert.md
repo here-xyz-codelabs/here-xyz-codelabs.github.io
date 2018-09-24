@@ -1,6 +1,6 @@
 author: Stamen Design
 summary: Make a live-updating map with three.js and the XYZ API
-id: 4
+id: Global-Flight-Tracker
 categories: map
 environments: js
 status: draft

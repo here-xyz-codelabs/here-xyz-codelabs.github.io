@@ -1,6 +1,6 @@
 author: Stamen Design
 summary: Make a map with Tangram and the XYZ API
-id: 3
+id: Green-Amsterdam
 categories: map
 environments: js
 status: draft

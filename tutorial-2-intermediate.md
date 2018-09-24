@@ -1,6 +1,6 @@
 author: Stamen Design
 summary: Make a map with Leaflet and the XYZ API
-id: 2
+id: Air-Quality-In-Madrid
 categories: map
 environments: js
 status: draft

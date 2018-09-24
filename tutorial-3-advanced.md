@@ -11,7 +11,7 @@ analytics account: 0
 
 ## Introduction
 
-This tutorial shows you how to create a Tangram map using data from XYZ Spaces.
+This tutorial shows you how to create a Tangram map using data from XYZ Spaces. Tangram can display vector data and handle many more points than Leaflet alone.
 
 ### What you'll learn
 * The basics of managing multiple XYZ spaces
@@ -92,9 +92,9 @@ here xyz upload -f heatmap.json [SpaceID]
 ## View the tiled data in Tangram
 Duration: 10:00
 
-If we want to see more datasets, Leaflet can’t handle that many points. The XYZ API supports _tiling_ vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We'll use [Tangram](https://github.com/tangrams/tangram), an open-source WebGL based map viewer.
+The XYZ API supports _tiling_ vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We'll use [Tangram](https://github.com/tangrams/tangram), an open-source WebGL based map viewer.
 
-First, we’ll create a boilerplate Tangram map, just like we did with Leaflet. The HTML for our map looks like this. Notice that we are creating a Leaflet map in much the same way as we did previously, but we are adding a _Tangram_ layer to it.
+First, we’ll create a boilerplate Tangram map, just like [we did with Leaflet](https://here-xyz-codelabs.github.io/Air-Quality-In-Madrid/#0). The HTML for our map looks like this. Notice that we are creating a Leaflet map in much the same way as we did previously, but we are adding a _Tangram_ layer to it.
 
 Positive
 : Note: This code snippet includes a bunch of CSS that we will use later. We won't explain most of it in this tutorial. If you're curious about CSS, there are tons of resources online to learn more.

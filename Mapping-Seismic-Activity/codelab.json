@@ -4,18 +4,18 @@
   "format": "html",
   "prefix": "../../",
   "mainga": "UA-49880327-14",
-  "updated": "2018-09-23T22:46:23-07:00",
+  "updated": "2018-09-24T13:55:19-07:00",
   "id": "Mapping-Seismic-Activity",
   "duration": 20,
   "title": "Make a map in XYZ Studio",
   "author": "Stamen Design",
-  "summary": "Make a map in XYZ Studio",
+  "summary": "Make a map of global seismic activity using XYZ Studio, all without writing any code.",
   "theme": "",
   "status": [
     "draft"
   ],
   "category": [
-    "map"
+    "xyz studio"
   ],
   "tags": [
     "js"

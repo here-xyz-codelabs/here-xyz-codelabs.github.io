@@ -1,7 +1,8 @@
 author: Stamen Design
-summary: Make a live-updating map with three.js and the XYZ API
+summary: Make a live-updating map of aircraft locations with three.js and the XYZ API.
+difficulty: 5
 id: Global-Flight-Tracker
-categories: map
+categories: XYZ API
 environments: js
 status: draft
 feedback link: https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues

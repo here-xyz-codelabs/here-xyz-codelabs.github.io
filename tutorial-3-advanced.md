@@ -1,7 +1,8 @@
 author: Stamen Design
-summary: Make a map with Tangram and the XYZ API
+summary: Visualize solar power production in Amsterdam with Tangram using vector tiles and the XYZ API.
+difficulty: 4
 id: Green-Amsterdam
-categories: map
+categories: XYZ API
 environments: js
 status: draft
 feedback link: https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues

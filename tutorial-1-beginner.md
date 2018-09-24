@@ -1,7 +1,8 @@
 author: Stamen Design
-summary: Make a map in XYZ Studio
+summary: Make a map of global seismic activity using XYZ Studio, all without writing any code.
+difficulty: 1
 id: Mapping-Seismic-Activity
-categories: map
+categories: XYZ Studio
 environments: js
 status: draft
 feedback link: https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues

@@ -1,7 +1,8 @@
 author: Stamen Design
-summary: Make a map with Leaflet and the XYZ API
+summary: Make a map of air quality measurements in Madrid using Leaflet and the XYZ API.
+difficulty: 3
 id: Air-Quality-In-Madrid
-categories: map
+categories: XYZ CLI
 environments: js
 status: draft
 feedback link: https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues

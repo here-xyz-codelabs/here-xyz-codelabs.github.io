@@ -25,7 +25,7 @@
                   feedback-link="https://github.com/here-xyz-codelabs/here-xyz-codelabs.github.io/issues">
     
       <google-codelab-step label="Introduction" duration="0">
-        <p>This tutorial shows you how to create a Tangram map using data from XYZ Spaces.</p>
+        <p>This tutorial shows you how to create a Tangram map using data from XYZ Spaces. Tangram can display vector data and handle many more points than Leaflet alone.</p>
 <h2 class="checklist">What you&#39;ll learn</h2>
 <ul class="checklist">
 <li>The basics of managing multiple XYZ spaces</li>
@@ -96,8 +96,8 @@ here xyz upload -f BOMEN.json [SpaceID]
       </google-codelab-step>
     
       <google-codelab-step label="View the tiled data in Tangram" duration="10">
-        <p>If we want to see more datasets, Leaflet can&#39;t handle that many points. The XYZ API supports <em>tiling</em> vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We&#39;ll use <a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a>, an open-source WebGL based map viewer.</p>
-<p>First, we&#39;ll create a boilerplate Tangram map, just like we did with Leaflet. The HTML for our map looks like this. Notice that we are creating a Leaflet map in much the same way as we did previously, but we are adding a <em>Tangram</em> layer to it.</p>
+        <p>The XYZ API supports <em>tiling</em> vector data, which lets us only load the data in chunks so that we only get the data that we need to display at that moment. To use this tiled endpoint, we need a map client that supports tiling. We&#39;ll use <a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a>, an open-source WebGL based map viewer.</p>
+<p>First, we&#39;ll create a boilerplate Tangram map, just like <a href="https://here-xyz-codelabs.github.io/Air-Quality-In-Madrid/#0" target="_blank">we did with Leaflet</a>. The HTML for our map looks like this. Notice that we are creating a Leaflet map in much the same way as we did previously, but we are adding a <em>Tangram</em> layer to it.</p>
 <aside class="special"><p>Note: This code snippet includes a bunch of CSS that we will use later. We won&#39;t explain most of it in this tutorial. If you&#39;re curious about CSS, there are tons of resources online to learn more.</p>
 </aside>
 <pre><code>&lt;!doctype html&gt;

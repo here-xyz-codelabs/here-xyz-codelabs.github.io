@@ -66,6 +66,9 @@ Duration: 10:00
 
 We’ll write a node script to find the total solar power generated in each neighborhood and save it to a new GeoJSON file, using [turf](http://turfjs.org/).
 
+Negative
+: This codelab only covers important XYZ steps, so we won't spend much time explaining how most of this code works. Please refer to the final html/javascript code for certain non-XYZ code blocks.
+
 ```
     const fs = require('fs');
     const turf = require('@turf/turf');

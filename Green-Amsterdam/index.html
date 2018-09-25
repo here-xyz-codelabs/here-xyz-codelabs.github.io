@@ -67,6 +67,8 @@ here xyz upload -f BOMEN.json [SpaceID2]
     
       <google-codelab-step label="Preprocessing" duration="10">
         <p>We&#39;ll write a node script to find the total solar power generated in each neighborhood and save it to a new GeoJSON file, using <a href="http://turfjs.org/" target="_blank">turf</a>.</p>
+<aside class="warning"><p>This codelab only covers important XYZ steps, so we won&#39;t spend much time explaining how most of this code works. Please refer to the final html/javascript code for certain non-XYZ code blocks.</p>
+</aside>
 <pre><code>    const fs = require(&#39;fs&#39;);
     const turf = require(&#39;@turf/turf&#39;);
     

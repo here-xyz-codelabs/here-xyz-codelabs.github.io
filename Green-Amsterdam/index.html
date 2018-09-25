@@ -432,7 +432,7 @@ function toggle(layerName) {
         function calcArea(bounds) {
             if (mode == &#39;trees&#39;) { // Prevent this from accidentally running in the other mode
                 map.spin(true);
-                var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID3]/bbox?access_token=AQAd6lqjXCQJrGMMkvbUItM&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
+                var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID2]/bbox?access_token=AQAd6lqjXCQJrGMMkvbUItM&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
                 fetch(url).then((response) =&gt; response.json()).then(function(data) {
                     var len = data.features.length;
                     map.spin(false);

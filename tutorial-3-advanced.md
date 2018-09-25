@@ -469,7 +469,9 @@ function countTrees() {
         function calcArea(bounds) {
             if (mode == 'trees') { // Prevent this from accidentally running in the other mode
                 map.spin(true);
-                var url = 'https://xyz.api.here.com/hub/spaces/[SpaceID3]/bbox?access_token=AQAd6lqjXCQJrGMMkvbUItM&west=' + bounds.getWest() + '&south=' + bounds.getSouth() + '&east=' + bounds.getEast() + '&north=' + bounds.getNorth();
+                var spaceID = [SpaceID2];
+                var accessToken = [AccessToken];
+                var url = 'https://xyz.api.here.com/hub/spaces/' + spaceID + '/bbox?access_token=' + accessToken + '&west=' + bounds.getWest() + '&south=' + bounds.getSouth() + '&east=' + bounds.getEast() + '&north=' + bounds.getNorth();
                 fetch(url).then((response) => response.json()).then(function(data) {
                     var len = data.features.length;
                     map.spin(false);

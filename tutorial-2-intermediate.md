@@ -108,6 +108,9 @@ here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]
 
 The `-p` or `--ptag` will create tags from the GeoJSON properties.
 
+Negative
+: Note: it may take several minutes for the data to upload. Please be patient! Also, some error warnings during upload are to be expected.
+
 To verify that the data has been populated, we can preview it with the show command, using the `-w` flag. This will open up a web browser tab with a map preview of your data:
 
 ```

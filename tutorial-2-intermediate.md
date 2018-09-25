@@ -52,16 +52,28 @@ After unzipping the dataset, you’ll see a `stations.csv` that looks like:
 
 ![CSV 1](images/tutorial-2-csv1.png)
 
-in the `csvs_per_year` folder, there is one file per year. we’ll use just 2001 `madrid_2001.csv`
+You'll also see a file called `csvs_per_year.zip`. Unzip this too.
+
+Now, in the `csvs_per_year` folder, there is one file per year. we’ll use just 2001 `madrid_2001.csv`
 
 ![CSV 2](images/tutorial-2-csv2.png)
 
 Data in an xyz space should always have geometry information. In this case, we want every station’s hourly pollution measurement to be a datapoint. Since the station is referenced by id in `madrid_2001.csv`, we will have to join this file with `stations.csv` to get that coordinates of the  measurement in the same row.
 
-We could write a script to do this operation, but since this is a common task, we’ll use an off the shelf tool called [csvkit](https://csvkit.readthedocs.io/en/1.0.3/) to do this operation. csvkit is a collection of command line tools to process csvs. It can do things like cut up, merge and view csvs. For example, to generate the views of the csvs above, we can use the `csvlook` command provided in csvkit.
+We could write a script to do this operation, but since this is a common task, we’ll use an off the shelf tool called [csvkit](https://csvkit.readthedocs.io/en/1.0.3/) to do this operation. csvkit is a collection of command line tools to process csvs.
+
+To install csvkit, you need to have [Python](https://www.python.org/) and [pip](https://pypi.org/project/pip/) installed. (pip, the Python package manager, usually comes installed if you already have Python installed.)
+
+Then you can install csvkit with this command: `sudo pip install csvkit`
+
+Here is more documentation about installing csvkit, if you have any trouble: 1) [installing csvkit](https://csvkit.readthedocs.io/en/1.0.3/tutorial/1_getting_started.html#installing-csvkit) 2) [tips and troubleshooting](https://csvkit.readthedocs.io/en/1.0.3/tricks.html)
+
+If you have a lot of trouble installing csvkit, you can skip it and download the pre-processed output data at the bottom of this step.
+
+csvkit can do things like cut up, merge and view csvs. For example, to generate the views of the csvs above, we can use the `csvlook` command provided in csvkit.
 
 ```
-    head madrid_2001.csv | csvlook
+    head csvs_per_year/madrid_2001.csv | csvlook
 ```
 
 To merge the sensor data and the station data, we’ll use the csvjoin command:
@@ -70,15 +82,17 @@ To merge the sensor data and the station data, we’ll use the csvjoin command:
     csvjoin -c "station,id" --left csvs_per_year/madrid_2001.csv stations.csv > out.csv
 ```
 
+This merge might take a while. Be patient.
+
 After the merge, you should see the merged table in `out.csv`
+
+In case you had any trouble installing csvkit or doing the merge, we've provided a pre-processed copy of the output file here: [https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/out.csv](https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/out.csv)
 
 
 ## Upload data to XYZ using the command line
 Duration: 5:00
 
-One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn’t let us add tags, so we will use another approach here.
-
-Specifically, we need to download and install the command line tool.
+One of the most powerful features of XYZ is the ability to use tags to select features. In this tutorial we will use the command line tool to add tags while we upload our data.
 
 Negative
 : Note: during the XYZ private beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you're using Windows, OSX, or Linux. Once XYZ has launched in public beta, we will update the instructions here.

@@ -59,23 +59,30 @@
       <google-codelab-step label="Preprocessing the data" duration="10">
         <p>After unzipping the dataset, you&#39;ll see a <code>stations.csv</code> that looks like:</p>
 <p><img alt="CSV 1" src="img/1ae800edc4584e28.png"></p>
-<p>in the <code>csvs_per_year</code> folder, there is one file per year. we&#39;ll use just 2001 <code>madrid_2001.csv</code></p>
+<p>You&#39;ll also see a file called <code>csvs_per_year.zip</code>. Unzip this too.</p>
+<p>Now, in the <code>csvs_per_year</code> folder, there is one file per year. we&#39;ll use just 2001 <code>madrid_2001.csv</code></p>
 <p><img alt="CSV 2" src="img/37911b5084cd8647.png"></p>
 <p>Data in an xyz space should always have geometry information. In this case, we want every station&#39;s hourly pollution measurement to be a datapoint. Since the station is referenced by id in <code>madrid_2001.csv</code>, we will have to join this file with <code>stations.csv</code> to get that coordinates of the  measurement in the same row.</p>
-<p>We could write a script to do this operation, but since this is a common task, we&#39;ll use an off the shelf tool called <a href="https://csvkit.readthedocs.io/en/1.0.3/" target="_blank">csvkit</a> to do this operation. csvkit is a collection of command line tools to process csvs. It can do things like cut up, merge and view csvs. For example, to generate the views of the csvs above, we can use the <code>csvlook</code> command provided in csvkit.</p>
-<pre><code>    head madrid_2001.csv | csvlook
+<p>We could write a script to do this operation, but since this is a common task, we&#39;ll use an off the shelf tool called <a href="https://csvkit.readthedocs.io/en/1.0.3/" target="_blank">csvkit</a> to do this operation. csvkit is a collection of command line tools to process csvs.</p>
+<p>To install csvkit, you need to have <a href="https://www.python.org/" target="_blank">Python</a> and <a href="https://pypi.org/project/pip/" target="_blank">pip</a> installed. (pip, the Python package manager, usually comes installed if you already have Python installed.)</p>
+<p>Then you can install csvkit with this command: <code>sudo pip install csvkit</code></p>
+<p>Here is more documentation about installing csvkit, if you have any trouble: 1) <a href="https://csvkit.readthedocs.io/en/1.0.3/tutorial/1_getting_started.html#installing-csvkit" target="_blank">installing csvkit</a> 2) <a href="https://csvkit.readthedocs.io/en/1.0.3/tricks.html" target="_blank">tips and troubleshooting</a></p>
+<p>If you have a lot of trouble installing csvkit, you can skip it and download the pre-processed output data at the bottom of this step.</p>
+<p>csvkit can do things like cut up, merge and view csvs. For example, to generate the views of the csvs above, we can use the <code>csvlook</code> command provided in csvkit.</p>
+<pre><code>    head csvs_per_year/madrid_2001.csv | csvlook
 </code></pre>
 <p>To merge the sensor data and the station data, we&#39;ll use the csvjoin command:</p>
 <pre><code>    csvjoin -c &#34;station,id&#34; --left csvs_per_year/madrid_2001.csv stations.csv &gt; out.csv
 </code></pre>
+<p>This merge might take a while. Be patient.</p>
 <p>After the merge, you should see the merged table in <code>out.csv</code></p>
+<p>In case you had any trouble installing csvkit or doing the merge, we&#39;ve provided a pre-processed copy of the output file here: <a href="https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/out.csv" target="_blank">https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/out.csv</a></p>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Upload data to XYZ using the command line" duration="5">
-        <p>One of the most powerful features of XYZ is the ability to use tags to select features. Currently the Studio upload interface doesn&#39;t let us add tags, so we will use another approach here.</p>
-<p>Specifically, we need to download and install the command line tool.</p>
+        <p>One of the most powerful features of XYZ is the ability to use tags to select features. In this tutorial we will use the command line tool to add tags while we upload our data.</p>
 <aside class="warning"><p>Note: during the XYZ private beta, you will need to ask someone within HERE to help you get the command line tool installed. Also, the exact steps for installing the command line tool will depend on your operating system, whether you&#39;re using Windows, OSX, or Linux. Once XYZ has launched in public beta, we will update the instructions here.</p>
 </aside>
 <p>Once you have the command line tool installed, you&#39;ll need to run <code>here configure set</code> to set up your credentials. Specifically, you&#39;ll need your <strong>App ID</strong> and <strong>App Code</strong>.</p>

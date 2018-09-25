@@ -148,7 +148,7 @@ In this case the timestamp of the measurement has been turned into a tag.
 ## Reading slices of data
 Duration: 5:00
 
-The xyz api provides the ability filter a dataset by tag. To try this out, use the geojson viewing tool and change the data provider url
+The xyz api provides the ability to filter a dataset by tag. To try this out, use the geojson viewing tool and change the data provider url
 
 from
 

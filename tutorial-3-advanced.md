@@ -272,6 +272,8 @@ layers:
                     size: 5
 ```
 
+At this stage, your `scene.yaml` file should now look something like this: ([sample scene.yaml](https://github.com/stamen/here-xyz-demo/blob/master/solar-tangram/scene-step1.yaml))
+
 Putting the HTML file and `scene.yaml` in the same folder lets us open up our [basic map](https://stamen.github.io/here-xyz-demo/solar-tangram/index-step1.html)!
 
 ![Basic map screenshot](images/tutorial-3-basic.png) 
@@ -390,7 +392,9 @@ styles:
         blend_order: 1
 ```
 
-Let's add these new style definitions to `scene.yaml` and take a look. [Now the map is starting to visualize the data.](https://stamen.github.io/here-xyz-demo/solar-tangram/index-step2.html)
+Your `scene.yaml` file should now look something like this: ([sample scene.yaml](https://github.com/stamen/here-xyz-demo/blob/master/solar-tangram/scene.yaml))
+
+Now that we've added these new style definitions to `scene.yaml`, let's see how it looks. [Now the map is starting to visualize the data.](https://stamen.github.io/here-xyz-demo/solar-tangram/index-step2.html)
 
 ![Map with all layers styled](images/tutorial-3-step1.png)
 

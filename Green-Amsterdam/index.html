@@ -206,7 +206,18 @@ here xyz upload -f heatmap.json [SpaceID3]
 &lt;/html&gt;
 </code></pre>
 <p>This Tangram layer loads and styles <em>vector</em> data sources, which are defined in a seperate &#34;scene&#34; file, <code>scene.yaml</code> in this case.</p>
-<p>To load our XYZ data on top of this Tangram map, we&#39;ll need to add a <code>source</code> to our scene file for each dataset. The tiled endpoint has this format: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}</code>.</p>
+<p>Create a <code>scene.yaml</code> file, and add these lines:</p>
+<pre><code>import:
+    - https://www.nextzen.org/carto/refill-style/refill-style.zip
+    - https://s3.amazonaws.com/xyz-demo/data/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/themes/label-5.zip
+</code></pre>
+<p>Those <code>import</code> statements will load a some external stylesheets data that will make up the background of our Tangram map.</p>
+<p>To load our own XYZ data on top of this map, we&#39;ll need to add a <code>source</code> to our scene file for each dataset. The tiled endpoint has this format: <code>https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}</code>.</p>
+<p>You will also need to provide an AccessToken.</p>
+<aside class="special"><p>Remember that you can get an access token by running <code>here xyz show -w [spaceID]</code> and copying the AccessToken from the generated URL. Alternatively, you can create new tokens with specific permissions using the Token UI: <a href="https://xyz.api.here.com/token-ui/" target="_blank">https://xyz.api.here.com/token-ui/</a></p>
+</aside>
+<p>Add these lines to your <code>scene.yaml</code> file, replacing the Space IDs and your AccessToken:</p>
 <pre><code>sources:
     solar:
         url: https://xyz.api.here.com/hub/spaces/[SpaceID1]/tile/web/{z}_{x}_{y}
@@ -227,7 +238,7 @@ here xyz upload -f heatmap.json [SpaceID3]
             clip: true
         type: GeoJSON
 </code></pre>
-<p>Let&#39;s draw the solar data by adding a new layer to <code>scene.yaml</code>:</p>
+<p>Now that we&#39;ve loaded those data sources, we need to instruct Tangram to draw some of them on the map. Let&#39;s draw the solar data by adding a new &#34;layer&#34; to <code>scene.yaml</code>:</p>
 <pre><code>layers:
     _solar:
         data: {source: solar}
@@ -247,9 +258,7 @@ here xyz upload -f heatmap.json [SpaceID3]
     
       <google-codelab-step label="Style the data" duration="10">
         <p>The basic map shows our data, but it doesn&#39;t visualize it. Let&#39;s define some of the layer styles so that the data drives the visualization.</p>
-<ol type="1">
-<li>We can change the definition of the <code>_solar</code> style so that the size and color of the points reflect the amount of power that each solar panel produces. This replaces the simple style that we defined in the previous step.</li>
-</ol>
+<p>We can change the definition of the <code>_solar</code> style so that the size and color of the points reflect the amount of power that each solar panel produces. This replaces the simple style that we defined in the previous step.</p>
 <pre><code>    _solar:
         data: {source: solar}
         enabled: true
@@ -278,9 +287,7 @@ here xyz upload -f heatmap.json [SpaceID3]
                         }
 </code></pre>
 <p>In this YAML file, the <code>size</code> attribute is actually a Javascript function! It is capable of accessing properties in the GeoJSON feature (&#34;vermogen&#34; is Dutch for &#34;capacity&#34;) and of the current map view (<code>$zoom</code>.) The value returned by the function is the size of the point.</p>
-<ol type="1">
-<li>Let&#39;s take advantage of our preprocessed neighborhood boundaries, and draw neighborhoods as a chloropleth based on total power generated.</li>
-</ol>
+<p>Let&#39;s take advantage of our preprocessed neighborhood boundaries, and draw neighborhoods as a chloropleth based on total power generated.</p>
 <pre><code>    _neighborhoods:
         enabled: true
         data: {source: neighborhoods}
@@ -313,9 +320,7 @@ here xyz upload -f heatmap.json [SpaceID3]
                 width: 3px
 </code></pre>
 <p>Notice that instead of drawing <code>points:</code>, we are now drawing <code>polygons</code> and <code>lines</code>. Here we use the Tangram <code>order</code> property so that the neighborhood boundaries show up underneath roads and water features on the map.</p>
-<ol type="1">
-<li>Draw trees with a variable size based on tree trunk diameter.</li>
-</ol>
+<p>Draw trees with a variable size based on tree trunk diameter.</p>
 <pre><code>    _trees:
         enabled: true
         data: {source: trees}
@@ -389,7 +394,9 @@ function showPopup(latlng, name, power) {
 <p><code>&#39;https://xyz.api.here.com/hub/spaces/[SpaceID2]/bbox?access_token=[AccessToken]&amp;west=&#39; + west + &#39;&amp;south=&#39; + south + &#39;&amp;east=&#39; + east + &#39;&amp;north=&#39; + north;</code></p>
 <p>To calculate the street trees within a particular bounding box, we simply have to get the bounds from <code>Leaflet-AreaSelect</code>, make the API call, and count the number of features returned.</p>
 <pre><code>var bounds = this.getBounds();
-var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID2]/bbox?access_token=[AccessToken]&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
+var spaceID = [SpaceID2];
+var accessToken = [AccessToken];
+var url = &#39;https://xyz.api.here.com/hub/spaces/&#39; + spaceID + &#39;/bbox?access_token=&#39; + accessToken + &#39;&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
 
 fetch(url).then((response) =&gt; response.json()).then(function(data) {
     var len = data.features.length;
@@ -432,7 +439,9 @@ function toggle(layerName) {
         function calcArea(bounds) {
             if (mode == &#39;trees&#39;) { // Prevent this from accidentally running in the other mode
                 map.spin(true);
-                var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID2]/bbox?access_token=AQAd6lqjXCQJrGMMkvbUItM&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
+                var spaceID = [SpaceID2];
+                var accessToken = [AccessToken];
+                var url = &#39;https://xyz.api.here.com/hub/spaces/&#39; + spaceID + &#39;/bbox?access_token=&#39; + accessToken + &#39;&amp;west=&#39; + bounds.getWest() + &#39;&amp;south=&#39; + bounds.getSouth() + &#39;&amp;east=&#39; + bounds.getEast() + &#39;&amp;north=&#39; + bounds.getNorth();
                 fetch(url).then((response) =&gt; response.json()).then(function(data) {
                     var len = data.features.length;
                     map.spin(false);

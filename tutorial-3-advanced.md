@@ -215,7 +215,25 @@ Positive
 
 This Tangram layer loads and styles _vector_ data sources, which are defined in a seperate "scene" file, `scene.yaml` in this case.
 
-To load our XYZ data on top of this Tangram map, we’ll need to add a `source` to our scene file for each dataset. The tiled endpoint has this format: `https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}`.
+Create a `scene.yaml` file, and add these lines:
+
+```
+import:
+    - https://www.nextzen.org/carto/refill-style/refill-style.zip
+    - https://s3.amazonaws.com/xyz-demo/data/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/themes/label-5.zip
+```
+
+Those `import` statements will load a some external stylesheets data that will make up the background of our Tangram map.
+
+To load our own XYZ data on top of this map, we’ll need to add a `source` to our scene file for each dataset. The tiled endpoint has this format: `https://xyz.api.here.com/hub/spaces/[SpaceID]/tile/web/{z}_{x}_{y}`.
+
+You will also need to provide an AccessToken.
+
+Positive
+: Remember that you can get an access token by running `here xyz show -w [spaceID]` and copying the AccessToken from the generated URL. Alternatively, you can create new tokens with specific permissions using the Token UI: [https://xyz.api.here.com/token-ui/](https://xyz.api.here.com/token-ui/)
+
+Add these lines to your `scene.yaml` file, replacing the Space IDs and your AccessToken:
 
 ```
 sources:
@@ -239,7 +257,7 @@ sources:
         type: GeoJSON
 ```
 
-Let's draw the solar data by adding a new layer to `scene.yaml`:
+Now that we've loaded those data sources, we need to instruct Tangram to draw some of them on the map. Let's draw the solar data by adding a new "layer" to `scene.yaml`:
 
 ```
 layers:
@@ -263,7 +281,7 @@ Duration: 10:00
 
 The basic map shows our data, but it doesn't visualize it. Let's define some of the layer styles so that the data drives the visualization.
 
-1. We can change the definition of the `_solar` style so that the size and color of the points reflect the amount of power that each solar panel produces. This replaces the simple style that we defined in the previous step.
+We can change the definition of the `_solar` style so that the size and color of the points reflect the amount of power that each solar panel produces. This replaces the simple style that we defined in the previous step.
 
 ```
     _solar:
@@ -296,7 +314,7 @@ The basic map shows our data, but it doesn't visualize it. Let's define some of 
 
 In this YAML file, the `size` attribute is actually a Javascript function! It is capable of accessing properties in the GeoJSON feature ("vermogen" is Dutch for "capacity") and of the current map view (`$zoom`.) The value returned by the function is the size of the point.
 
-2. Let's take advantage of our preprocessed neighborhood boundaries, and draw neighborhoods as a chloropleth based on total power generated.
+Let's take advantage of our preprocessed neighborhood boundaries, and draw neighborhoods as a chloropleth based on total power generated.
 
 ```
     _neighborhoods:
@@ -333,7 +351,7 @@ In this YAML file, the `size` attribute is actually a Javascript function! It is
 
 Notice that instead of drawing `points:`, we are now drawing `polygons` and `lines`. Here we use the Tangram `order` property so that the neighborhood boundaries show up underneath roads and water features on the map.
 
-3. Draw trees with a variable size based on tree trunk diameter.
+Draw trees with a variable size based on tree trunk diameter.
 
 ```
     _trees:
@@ -418,7 +436,9 @@ To calculate the street trees within a particular bounding box, we simply have t
 
 ```
 var bounds = this.getBounds();
-var url = 'https://xyz.api.here.com/hub/spaces/[SpaceID2]/bbox?access_token=[AccessToken]&west=' + bounds.getWest() + '&south=' + bounds.getSouth() + '&east=' + bounds.getEast() + '&north=' + bounds.getNorth();
+var spaceID = [SpaceID2];
+var accessToken = [AccessToken];
+var url = 'https://xyz.api.here.com/hub/spaces/' + spaceID + '/bbox?access_token=' + accessToken + '&west=' + bounds.getWest() + '&south=' + bounds.getSouth() + '&east=' + bounds.getEast() + '&north=' + bounds.getNorth();
 
 fetch(url).then((response) => response.json()).then(function(data) {
     var len = data.features.length;

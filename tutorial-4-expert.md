@@ -251,7 +251,7 @@ Here is a premade spinny globe in three.js.
 
 ![globe](images/tutorial-4-globe.png)
 
-The details of three.js are not the focus of this tutorial, so to get you started, here is enough code to get up and running with a nice 3D globe. You don't need to pay much attention to the details if you don't want to.
+The details of three.js are not the focus of this tutorial, so to get you started, below we're going to give you eough code to get up and running with a nice 3D globe. You don't need to pay much attention to the details if you don't want to. If you don't want to do a lot of cut-and-paste, you can see the [whole starter code here](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step1.html) (or use the [raw download link](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/index-step1.html)). But make sure you also skip to the bottom of this step to download some additional supporting files.
 
 Open up a file called `index.html` in your favorite text editor, and copy in the following code. First, the HTML headers:
 
@@ -474,20 +474,39 @@ And finally, we add the body, which contains the inline javascript to make the g
 </html>
 ```
 
-Finally, there are three external JavaScript files which you should download and place in a `js/` folder beside your `index.html` file. Here are links to download those files:
+Finally, there are three external JavaScript files which you should download and place in a `js/` folder beside your `index.html` file. Here are links to download those files. Click the "raw" links to go to straight to the file you need to download. Or, even quicker, skip to the `wget` code block below the list of links.
 
-1. [three.min.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/three.min.js)
-2. [CustomOrbitControls.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/CustomOrbitControls.js)
-3. [threex.domevents.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/threex.domevents.js)
+1. [three.min.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/three.min.js) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/three.min.js))
+2. [CustomOrbitControls.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/CustomOrbitControls.js) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/CustomOrbitControls.js))
+3. [threex.domevents.js](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/js/threex.domevents.js) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/threex.domevents.js))
 
 You also need to download some image files (which will be used for the terrain and clouds on our globe). Put these in a folder named `img/`:
 
-1. [8081_earthbump4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthbump4k.jpg)
-2. [8081_earthhiresclouds4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthhiresclouds4K.jpg)
-3. [8081_earthlights4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthlights4k.jpg)
-4. [8081_earthmap4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthmap4k.jpg)
-5. [8081_earthspec4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthspec4k.jpg)
+1. [8081_earthbump4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthbump4k.jpg) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthbump4k.jpg))
+2. [8081_earthhiresclouds4K.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthhiresclouds4K.jpg) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthhiresclouds4K.jpg))
+3. [8081_earthlights4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthlights4k.jpg) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthlights4k.jpg))
+4. [8081_earthmap4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthmap4k.jpg) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthmap4k.jpg))
+5. [8081_earthspec4k.jpg](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/img/8081_earthspec4k.jpg) ([raw](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthspec4k.jpg))
 
+If you have [wget](https://www.gnu.org/software/wget/) installed (or [curl](https://curl.haxx.se/) would work similarly) you can paste these lines into the command line to download the files all in one step.
+
+```
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/three.min.js
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/CustomOrbitControls.js
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/js/threex.domevents.js
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthbump4k.jpg
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthhiresclouds4K.jpg
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthlights4k.jpg
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthmap4k.jpg
+wget https://raw.githubusercontent.com/stamen/here-xyz-demo/master/flights-threejs/img/8081_earthspec4k.jpg
+```
+
+Move the `.js` files to a `js/` folder, and move the `.jpg` files to an `img/` folder.
+
+```
+mv three.min.js CustomOrbitControls.js threex.domevents.js js/
+mv 8081*.jpg img/
+```
 
 At this point our code looks like [this](https://github.com/stamen/here-xyz-demo/blob/master/flights-threejs/index-step1.html)
 

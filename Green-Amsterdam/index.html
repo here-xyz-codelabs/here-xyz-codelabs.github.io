@@ -346,6 +346,13 @@ here xyz upload -f heatmap.json [SpaceID3]
                         return size;
                     }
 </code></pre>
+<p>Finally, we need to add one more block of code to get our polygons to style correctly. Add this to your <code>scene.yaml</code>, but make sure that <code>styles:</code> is fully left justified, not nested inside <code>layers:</code>:</p>
+<pre><code>styles:
+    _polygons_inlay:
+        base: polygons
+        blend: inlay
+        blend_order: 1
+</code></pre>
 <p>Let&#39;s add these new style definitions to <code>scene.yaml</code> and take a look. <a href="https://stamen.github.io/here-xyz-demo/solar-tangram/index-step2.html" target="_blank">Now the map is starting to visualize the data.</a></p>
 <p><img alt="Map with all layers styled" src="img/5c097e177f8a622f.png"></p>
 

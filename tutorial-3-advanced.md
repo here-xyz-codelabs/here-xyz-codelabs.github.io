@@ -380,6 +380,16 @@ Draw trees with a variable size based on tree trunk diameter.
                     }
 ```
 
+Finally, we need to add one more block of code to get our polygons to style correctly. Add this to your `scene.yaml`, but make sure that `styles:` is fully left justified, not nested inside `layers:`:
+
+```
+styles:
+    _polygons_inlay:
+        base: polygons
+        blend: inlay
+        blend_order: 1
+```
+
 Let's add these new style definitions to `scene.yaml` and take a look. [Now the map is starting to visualize the data.](https://stamen.github.io/here-xyz-demo/solar-tangram/index-step2.html)
 
 ![Map with all layers styled](images/tutorial-3-step1.png)

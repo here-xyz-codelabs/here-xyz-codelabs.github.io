@@ -187,7 +187,9 @@ Duration: 5:00
 
 Next, we will view some of this data in Leaflet. Leaflet is a simple mapping library that can draw simple points, lines, and polygons on top of a raster basemap.
 
-Here is a [basic Leaflet template](https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html) which gives us a raster “slippy” map, with nothing on it. To view this code in your browser, you can quickly run a webserver using `python -m SimpleHTTPServer`. Or you could upload it to your own personal webpage, or use something like [S3](https://aws.amazon.com/s3/) or blockbuilder.org to view this simple page.
+Below we provide the code for a [basic Leaflet template](https://github.com/stamen/here-xyz-demo/blob/master/urban-air-leaflet/index-step1.html) which gives us a raster “slippy” map, with nothing on it. You can either download the file [index-step1.html](https://raw.githubusercontent.com/stamen/here-xyz-demo/master/urban-air-leaflet/index-step1.html) and rename it to `index.html`, or you can create a new file called `index.html` in the text editing program of your chose, and copy-and-paste the code below.
+
+Once you have your `index.html` file ready, let's see what it looks like. To view this code in your browser, you can quickly run a webserver using `python -m SimpleHTTPServer`. Or you could upload it to your own personal webpage, or use something like [S3](https://aws.amazon.com/s3/) or blockbuilder.org to view this simple page.
 
 Positive
 : Note: This code snippet includes a bunch of CSS that we will use later. We won't explain most of it in this tutorial. If you're curious about CSS, there are tons of resources online to learn more.

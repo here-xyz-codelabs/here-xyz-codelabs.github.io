@@ -121,10 +121,11 @@
 <pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&amp;access_token=[AccessToken]
 </code></pre>
 <p>to</p>
-<pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?tags=2001-08-01t01:00:00&amp;%27limit=5000&amp;access_token=[AccessToken]
+<pre><code>    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&amp;access_token=[AccessToken]&amp;tags=2001-08-01t01:00:00
 </code></pre>
-<p>You should see that the previewer re-renders with only data that matches <code>data ==&#39;2001-08-01t01:00:00&#39;</code></p>
-<p>Try changing the date to get different data.</p>
+<p>(Basically, we just add <code>&amp;tags=2001-08-01t01:00:00</code> to the end of our URL.) If you then reload the page, the previewer re-renders with only data that matches <code>data ==&#39;2001-08-01t01:00:00&#39;</code></p>
+<p>The map won&#39;t <em>look</em> very different, because the locations of the air quality sensors remain the same. But if you click on one of the dots to view the air quality results at that point, you can see that the date has changed and the values are different.</p>
+<p>Try changing the date tag in the URL and reloading the page to get different data. For example, instead of <code>2001-08-01t01:00:00</code> (which is August 1st, 2001) try <code>2001-10-01t01:00:00</code> to see the data for October 1st.</p>
 
 
       </google-codelab-step>

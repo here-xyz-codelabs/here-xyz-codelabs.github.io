@@ -156,12 +156,14 @@ from
 to
 
 ```
-    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?tags=2001-08-01t01:00:00&%27limit=5000&access_token=[AccessToken]
+    http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&access_token=[AccessToken]&tags=2001-08-01t01:00:00
 ```
 
-You should see that the previewer re-renders with only data that matches `data ==` `'``2001-08-01t01:00:00``'`
+(Basically, we just add `&tags=2001-08-01t01:00:00` to the end of our URL.) If you then reload the page, the previewer re-renders with only data that matches `data ==` `'``2001-08-01t01:00:00``'`
 
-Try changing the date to get different data.
+The map won't _look_ very different, because the locations of the air quality sensors remain the same. But if you click on one of the dots to view the air quality results at that point, you can see that the date has changed and the values are different.
+
+Try changing the date tag in the URL and reloading the page to get different data. For example, instead of `2001-08-01t01:00:00` (which is August 1st, 2001) try `2001-10-01t01:00:00` to see the data for October 1st.
 
 ## View the data in a Leaflet map
 Duration: 5:00

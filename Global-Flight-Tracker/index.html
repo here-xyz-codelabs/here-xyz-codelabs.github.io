@@ -44,6 +44,8 @@
     
       <google-codelab-step label="Create a script to refresh data in XYZ" duration="15">
         <p>So far we&#39;ve only used the API to query data. Let&#39;s try out more of the features of the XYZ API, such as adding and deleting data. Here we&#39;re going to write a simple <a href="https://nodejs.org/" target="_blank">node.js</a> script that queries the flights API every minute, and uploads the new points to our XYZ space.</p>
+<aside class="warning"><p>Note: This codelab focuses mainly on the important XYZ steps, so we won&#39;t spend much time explaining how most of the non-XYZ code works.</p>
+</aside>
 <p>First, create a new space:</p>
 <pre><code>here xyz create --title &#34;aircraft-locations&#34; --message &#34;real-time aircraft locations updated via the XYZ API&#34;
 </code></pre>

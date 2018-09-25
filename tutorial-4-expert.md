@@ -31,6 +31,9 @@ Duration: 15:00
 
 So far we've only used the API to query data. Let’s try out more of the features of the XYZ API, such as adding and deleting data. Here we're going to write a simple [node.js](https://nodejs.org/) script that queries the flights API every minute, and uploads the new points to our XYZ space.
 
+Negative
+: Note: This codelab focuses mainly on the important XYZ steps, so we won't spend much time explaining how most of the non-XYZ code works.
+
 First, create a new space:
 
 ```

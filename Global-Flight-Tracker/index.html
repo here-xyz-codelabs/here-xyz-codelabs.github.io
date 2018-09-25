@@ -476,17 +476,19 @@ mv 8081*.jpg img/
       <google-codelab-step label="Add the planes to our globe" duration="10">
         <p><img alt="planes" src="img/19e61b75b7aa62e7.png"></p>
 <p>Next we need to add an API query to get the latest plane locations.</p>
-<p>At the end of your script, add this code (after the <code>addLights()</code> function).</p>
+<p>At the end of the <code>&lt;script&gt;</code> block in your index.html file, add this code (after the <code>addLights()</code> function, but before <code>&lt;/script&gt;</code>).</p>
 <pre><code>            var mostRecent = {};  // Need to track which data is the most recent for each plane, in case we have multiple records for each plane.
 
             var airport = &#39;KJFK&#39;;
 
             function fetchPlanes() {
                 console.log(&#39;fetching planes&#39;, airport);
-                var p = fetch(&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=to-&#39; + airport).then(function(response) {
+                var spaceID = &#39;[SpaceID]&#39;;
+                var accessToken = &#39;[AccessToken]&#39;;
+                var p = fetch(&#39;https://xyz.api.here.com/hub/spaces/&#39; + spaceID + &#39;/search?access_token=&#39; + accessToken + &#39;&amp;tags=to-&#39; + airport).then(function(response) {
                     return response.json()
                 }).then(function(json) {
-                    var p2 = fetch(&#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&amp;tags=from-&#39; + airport).then(function(response2) {
+                    var p2 = fetch(&#39;https://xyz.api.here.com/hub/spaces/&#39; + spaceID + &#39;/search?access_token=&#39; + accessToken + &#39;&amp;tags=from-&#39; + airport).then(function(response2) {
                         return response2.json()
                     }).then(function(json2) {
                         //window.data = json;

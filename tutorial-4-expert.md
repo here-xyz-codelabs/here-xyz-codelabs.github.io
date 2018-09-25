@@ -519,7 +519,7 @@ Duration: 10:00
 
 Next we need to add an API query to get the latest plane locations.
 
-At the end of your script, add this code (after the `addLights()` function).
+At the end of the `<script>` block in your index.html file, add this code (after the `addLights()` function, but before `</script>`).
 
 ```
             var mostRecent = {};  // Need to track which data is the most recent for each plane, in case we have multiple records for each plane.
@@ -528,10 +528,12 @@ At the end of your script, add this code (after the `addLights()` function).
 
             function fetchPlanes() {
                 console.log('fetching planes', airport);
-                var p = fetch('https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&tags=to-' + airport).then(function(response) {
+                var spaceID = '[SpaceID]';
+                var accessToken = '[AccessToken]';
+                var p = fetch('https://xyz.api.here.com/hub/spaces/' + spaceID + '/search?access_token=' + accessToken + '&tags=to-' + airport).then(function(response) {
                     return response.json()
                 }).then(function(json) {
-                    var p2 = fetch('https://xyz.api.here.com/hub/spaces/[SpaceID]/search?access_token=[AccessToken]&tags=from-' + airport).then(function(response2) {
+                    var p2 = fetch('https://xyz.api.here.com/hub/spaces/' + spaceID + '/search?access_token=' + accessToken + '&tags=from-' + airport).then(function(response2) {
                         return response2.json()
                     }).then(function(json2) {
                         //window.data = json;

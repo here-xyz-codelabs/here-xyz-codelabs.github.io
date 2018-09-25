@@ -108,7 +108,7 @@ here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]
 
 The `-p` or `--ptag` will create tags from the GeoJSON properties.
 
-To verify that the data has been populated, we can preview it with the show command
+To verify that the data has been populated, we can preview it with the show command, using the `-w` flag. This will open up a web browser tab with a map preview of your data:
 
 ```
     here xyz show -w [spaceID]
@@ -116,7 +116,16 @@ To verify that the data has been populated, we can preview it with the show comm
 
 ![XYZ CLI show command](images/tutorial-2-show.png)
 
-In the data editor, you should see that the properties object of each feature, there is a section for tags:
+Notice the URL will look something like this:
+
+```
+http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&access_token=[AccessToken]
+```
+
+Positive
+: Take note of that access token at the end of the URL, which we will use in our API requests later. If you ever need to create new tokens with specific permissions, you can go here: [https://xyz.api.here.com/token-ui/](https://xyz.api.here.com/token-ui/)
+
+In the data editor of this preview window, you should see that the properties object of each feature, there is a section for tags:
 
 ```
 
@@ -361,6 +370,9 @@ All of that is just to help us parse the dates and to display descriptions for t
 Next, add this code add the end of our script, basically all after the line `theMap.setView([40.416232, -3.703637], 13);`
 
 ```
+
+        var spaceID = [SpaceID];
+        var accessToken = [AccessToken];
         var radiusScale = d3.scaleLinear().domain([0, 200]).range([7, 70]).clamp(true);
         var colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, 100]);
         function renderCircles() {
@@ -385,7 +397,7 @@ Next, add this code add the end of our script, basically all after the line `the
         }
 
         function fetchData(dateStr) {
-            var url = 'https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=100&access_token=[AccessToken]&tags=' + dateStr;
+            var url = 'https://xyz.api.here.com/hub/spaces/' + spaceID + '/search?limit=100&access_token=' + accessToken + '&tags=' + dateStr;
             d3.json(url).then(function(data) {
                 theData = data;
                 renderCircles();

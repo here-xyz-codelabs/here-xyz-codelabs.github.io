@@ -90,11 +90,16 @@
 <pre><code>here xyz upload -f out.csv --lat lat --lon lon --ptag date [spaceID]
 </code></pre>
 <p>The <code>-p</code> or <code>--ptag</code> will create tags from the GeoJSON properties.</p>
-<p>To verify that the data has been populated, we can preview it with the show command</p>
+<p>To verify that the data has been populated, we can preview it with the show command, using the <code>-w</code> flag. This will open up a web browser tab with a map preview of your data:</p>
 <pre><code>    here xyz show -w [spaceID]
 </code></pre>
 <p><img alt="XYZ CLI show command" src="img/2a9b1a9ce43203ed.png"></p>
-<p>In the data editor, you should see that the properties object of each feature, there is a section for tags:</p>
+<p>Notice the URL will look something like this:</p>
+<pre><code>http://geojson.tools/index.html?url=https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=5000&amp;access_token=[AccessToken]
+</code></pre>
+<aside class="special"><p>Take note of that access token at the end of the URL, which we will use in our API requests later. If you ever need to create new tokens with specific permissions, you can go here: <a href="https://xyz.api.here.com/token-ui/" target="_blank">https://xyz.api.here.com/token-ui/</a></p>
+</aside>
+<p>In the data editor of this preview window, you should see that the properties object of each feature, there is a section for tags:</p>
 <pre><code>        &#34;@ns:com:here:xyz&#34;: {
           &#34;tags&#34;: [
             &#34;2001-08-01t01:00:00&#34;,
@@ -313,7 +318,9 @@
 </code></pre>
 <p>All of that is just to help us parse the dates and to display descriptions for the various air quality indicators.</p>
 <p>Next, add this code add the end of our script, basically all after the line <code>theMap.setView([40.416232, -3.703637], 13);</code></p>
-<pre><code>        var radiusScale = d3.scaleLinear().domain([0, 200]).range([7, 70]).clamp(true);
+<pre><code>        var spaceID = [SpaceID];
+        var accessToken = [AccessToken];
+        var radiusScale = d3.scaleLinear().domain([0, 200]).range([7, 70]).clamp(true);
         var colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, 100]);
         function renderCircles() {
             // remove old markers
@@ -337,7 +344,7 @@
         }
 
         function fetchData(dateStr) {
-            var url = &#39;https://xyz.api.here.com/hub/spaces/[SpaceID]/search?limit=100&amp;access_token=[AccessToken]&amp;tags=&#39; + dateStr;
+            var url = &#39;https://xyz.api.here.com/hub/spaces/&#39; + spaceID + &#39;/search?limit=100&amp;access_token=&#39; + accessToken + &#39;&amp;tags=&#39; + dateStr;
             d3.json(url).then(function(data) {
                 theData = data;
                 renderCircles();

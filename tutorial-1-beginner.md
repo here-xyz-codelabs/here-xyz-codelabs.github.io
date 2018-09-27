@@ -189,4 +189,4 @@ Now let's share the map! Click the “Project Settings” button in the lower le
 ![XYZ Studio Publish window](images/tutorial-1-publish.png)
 
 
-The sharable URL will look something like this: [https://xyz.here.com/viewer/?project_id=ef9c4480-b55a-11e8-875f-e507603e6a20](https://xyz.here.com/viewer/?project_id=ef9c4480-b55a-11e8-875f-e507603e6a20)
+The sharable URL will look something like this: [https://xyz.here.com/viewer/?project_id=85965842-b96f-4b77-be6a-fd105f53c944](https://xyz.here.com/viewer/?project_id=85965842-b96f-4b77-be6a-fd105f53c944)
